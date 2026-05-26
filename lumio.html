@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumio — Rasmlaringiz Hikoyaga Aylansin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0d0d0d;--cream:#f5f0e8;--gold:#c9a96e;--gold-l:#e8c98a;
+  --rose:#c97b6e;--sage:#7ea898;--deep:#141008;
+  --muted:rgba(245,240,232,0.45);--border:rgba(245,240,232,0.08);
+  --card:rgba(245,240,232,0.04);--card-h:rgba(245,240,232,0.08);--sidebar:210px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--cream);overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.35;}
+
+/* PAGES */
+.page{display:none;min-height:100vh;}
+.page.active{display:flex;flex-direction:column;}
+#page-dashboard.active{flex-direction:row;}
+.fade-in{animation:fadeIn .4s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* LOGO */
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;}
+.logo-icon{width:32px;height:32px;flex-shrink:0;}
+.logo-text{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--cream);letter-spacing:-.5px;}
+.logo-text em{color:var(--gold);font-style:italic;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to bottom,rgba(13,13,13,.96),transparent);}
+.nav-links{display:flex;gap:24px;align-items:center;}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s;cursor:pointer;}
+.nav-links a:hover{color:var(--cream);}
+.btn-gold{padding:10px 24px;border-radius:100px;background:var(--gold);color:var(--ink);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .25s;}
+.btn-gold:hover{background:var(--gold-l);transform:translateY(-1px);}
+.btn-outline{padding:10px 24px;border-radius:100px;background:transparent;color:var(--cream);
+  font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid rgba(245,240,232,.2);cursor:pointer;transition:all .25s;}
+.btn-outline:hover{border-color:var(--cream);}
+.btn-ghost{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+.btn-ghost:hover{color:var(--cream);}
+
+/* SECTIONS */
+.s{padding:96px 80px;max-width:1200px;margin:0 auto;}
+.s-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:block;}
+.s-title{font-family:'Playfair Display',serif;font-size:clamp(34px,4.5vw,58px);font-weight:700;line-height:1.05;letter-spacing:-2px;margin-bottom:16px;}
+.s-sub{font-size:15px;font-weight:300;color:var(--muted);line-height:1.8;max-width:460px;}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:120px 48px 60px;position:relative;overflow:hidden;text-align:center;}
+.bg-mosaic{position:absolute;inset:-20px;z-index:0;display:grid;
+  grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(5,1fr);gap:4px;
+  opacity:.13;transform:rotate(-4deg) scale(1.2);}
+.bg-tile{border-radius:6px;}
+.hero-inner{position:relative;z-index:1;max-width:880px;}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:100px;
+  border:1px solid rgba(201,169,110,.3);background:rgba(201,169,110,.07);
+  font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:28px;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(48px,8vw,100px);
+  line-height:.95;font-weight:900;letter-spacing:-4px;margin-bottom:24px;}
+.hero h1 em{display:block;color:var(--gold);font-style:italic;}
+.hero-sub{font-size:17px;font-weight:300;color:var(--muted);line-height:1.75;max-width:520px;margin:0 auto 44px;}
+.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.hero-stats{position:relative;z-index:1;margin-top:72px;padding-top:32px;
+  border-top:1px solid var(--border);display:flex;gap:56px;justify-content:center;flex-wrap:wrap;}
+.hero-stat .n{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--gold);display:block;}
+.hero-stat .l{font-size:11px;color:var(--muted);letter-spacing:.5px;}
+.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;}
+.scroll-hint span{font-size:9px;letter-spacing:2px;color:rgba(245,240,232,.2);}
+.scroll-line{width:1px;height:36px;background:linear-gradient(var(--gold),transparent);}
+
+/* ── PROBLEM ── */
+.problem-section{padding:80px;background:rgba(245,240,232,.02);}
+.problem-inner{max-width:1100px;margin:0 auto;}
+.problem-quote{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,52px);
+  font-weight:700;line-height:1.1;letter-spacing:-2px;margin-bottom:48px;text-align:center;}
+.problem-quote span{color:var(--gold);font-style:italic;}
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:20px;overflow:hidden;}
+.pain-card{background:var(--card);padding:36px;border-left:2px solid transparent;transition:border-color .3s;}
+.pain-card:hover{border-left-color:var(--rose);}
+.pain-icon{font-size:32px;margin-bottom:16px;display:block;}
+.pain-t{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin-bottom:10px;color:var(--rose);}
+.pain-d{font-size:13.5px;color:var(--muted);line-height:1.7;}
+.pain-stat{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--rose);margin-top:14px;}
+
+/* ── SOLUTION BRIDGE ── */
+.bridge{padding:80px;text-align:center;}
+.bridge-inner{max-width:800px;margin:0 auto;}
+.bridge-arrow{font-size:48px;margin-bottom:24px;display:block;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.bridge h2{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);
+  font-weight:700;letter-spacing:-2px;margin-bottom:16px;line-height:1.1;}
+.bridge h2 em{color:var(--gold);font-style:italic;}
+
+/* ── FEATURES ── */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:56px;border-radius:22px;overflow:hidden;}
+.feat{background:var(--card);padding:38px;transition:background .25s;position:relative;}
+.feat:hover{background:var(--card-h);}
+.feat-icon{font-size:30px;margin-bottom:16px;display:block;}
+.feat-t{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:10px;}
+.feat-d{font-size:13.5px;color:var(--muted);line-height:1.7;}
+.feat-tag{display:inline-block;margin-top:14px;padding:3px 12px;border-radius:100px;
+  background:rgba(201,169,110,.12);color:var(--gold);font-size:11px;font-weight:600;}
+.feat-new{background:rgba(126,168,152,.15);color:var(--sage);}
+
+/* ── SECURITY ── */
+.security-section{padding:80px;background:linear-gradient(135deg,rgba(13,10,8,1),rgba(20,16,8,1));}
+.security-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.sec-badge-big{background:linear-gradient(135deg,rgba(126,168,152,.1),rgba(201,169,110,.08));
+  border:1px solid rgba(126,168,152,.25);border-radius:24px;padding:36px;text-align:center;}
+.sec-icon-big{font-size:56px;margin-bottom:16px;display:block;}
+.sec-badge-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:10px;}
+.sec-badge-sub{font-size:13px;color:var(--muted);line-height:1.7;}
+.sec-badge-chip{display:inline-block;padding:6px 14px;border-radius:100px;
+  background:rgba(126,168,152,.15);border:1px solid rgba(126,168,152,.3);
+  color:var(--sage);font-size:11px;font-weight:700;letter-spacing:.5px;margin-top:14px;}
+.sec-list{display:flex;flex-direction:column;gap:18px;}
+.sec-item{display:flex;gap:16px;align-items:flex-start;}
+.sec-item-icon{width:40px;height:40px;border-radius:10px;background:rgba(126,168,152,.1);
+  border:1px solid rgba(126,168,152,.2);display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;}
+.sec-item-t{font-weight:600;font-size:14px;margin-bottom:4px;}
+.sec-item-d{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* ── HOW ── */
+.how-wrap{background:rgba(245,240,232,.02);border-radius:28px;padding:60px;margin-top:56px;}
+.how-steps{display:flex;gap:0;margin-top:44px;position:relative;}
+.how-steps::before{content:'';position:absolute;top:38px;left:50px;right:50px;height:1px;
+  background:linear-gradient(to right,var(--gold),var(--rose),var(--sage));opacity:.25;}
+.how-step{flex:1;text-align:center;padding:0 12px;}
+.step-n{width:76px;height:76px;border-radius:50%;background:rgba(245,240,232,.04);
+  border:1px solid rgba(201,169,110,.25);display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin:0 auto 18px;position:relative;z-index:1;}
+.step-t{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;margin-bottom:8px;}
+.step-d{font-size:12px;color:var(--muted);line-height:1.65;}
+
+/* ── TESTIMONIALS ── */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px;}
+.testi{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;}
+.testi-stars{color:var(--gold);font-size:14px;margin-bottom:14px;}
+.testi-q{font-family:'Playfair Display',serif;font-size:16px;line-height:1.6;
+  color:rgba(245,240,232,.85);margin-bottom:18px;font-style:italic;}
+.testi-author{display:flex;align-items:center;gap:10px;}
+.testi-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--ink);}
+.testi-name{font-size:13px;font-weight:600;}
+.testi-loc{font-size:11px;color:var(--muted);}
+
+/* ── PRICING ── */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px;max-width:700px;}
+.price-card{border-radius:22px;padding:34px;border:1px solid var(--border);background:var(--card);position:relative;}
+.price-card.hot{border-color:rgba(201,169,110,.35);background:rgba(201,169,110,.05);}
+.price-card.hot::after{content:'Mashhur';position:absolute;top:18px;right:18px;
+  padding:3px 10px;border-radius:100px;background:var(--gold);color:var(--ink);font-size:10px;font-weight:700;}
+.price-name{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.price-n{font-family:'Playfair Display',serif;font-size:46px;font-weight:900;margin:12px 0 4px;}
+.price-n sup{font-size:20px;color:var(--gold);}
+.price-p{font-size:12px;color:var(--muted);margin-bottom:22px;}
+.price-ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.price-ul li{font-size:13px;color:rgba(245,240,232,.65);display:flex;align-items:center;gap:9px;}
+.price-ul li::before{content:'✦';color:var(--gold);font-size:9px;flex-shrink:0;}
+.btn-price{width:100%;margin-top:24px;padding:13px;border-radius:100px;font-size:13.5px;
+  font-weight:600;cursor:pointer;transition:all .25s;font-family:'DM Sans',sans-serif;border:none;}
+
+/* ── FOOTER ── */
+footer{padding:40px 80px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;}
+footer span{font-size:12px;color:rgba(245,240,232,.25);}
+
+/* ── AUTH ── */
+#page-auth{justify-content:center;align-items:center;padding:48px;}
+.auth-card{background:var(--card);border:1px solid var(--border);
+  border-radius:26px;padding:44px;width:100%;max-width:420px;}
+.auth-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;margin-bottom:6px;}
+.auth-sub{font-size:13px;color:var(--muted);margin-bottom:32px;}
+.g-btn{width:100%;padding:13px;border-radius:100px;background:var(--card-h);
+  border:1px solid rgba(245,240,232,.1);color:var(--cream);font-family:'DM Sans',sans-serif;
+  font-size:13.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:10px;transition:all .25s;margin-bottom:18px;}
+.g-btn:hover{background:rgba(245,240,232,.12);}
+.divider{display:flex;align-items:center;gap:14px;color:rgba(245,240,232,.2);font-size:12px;margin:18px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.inp{width:100%;padding:13px 16px;border-radius:11px;background:rgba(245,240,232,.05);
+  border:1px solid var(--border);color:var(--cream);font-size:13.5px;
+  font-family:'DM Sans',sans-serif;outline:none;transition:border .2s;margin-bottom:10px;}
+.inp:focus{border-color:rgba(201,169,110,.4);}
+.inp::placeholder{color:rgba(245,240,232,.2);}
+.inp-err{border-color:var(--rose)!important;}
+.err-msg{font-size:12px;color:var(--rose);margin:-6px 0 8px;display:none;}
+.err-msg.show{display:block;}
+.auth-toggle{text-align:center;margin-top:18px;font-size:13px;color:var(--muted);}
+.auth-toggle a{color:var(--gold);text-decoration:none;cursor:pointer;}
+
+/* ── CONNECT ── */
+#page-connect{justify-content:center;align-items:center;padding:48px;}
+.connect-card{background:var(--card);border:1px solid var(--border);
+  border-radius:26px;padding:52px;max-width:480px;width:100%;text-align:center;}
+.enc-notice{background:rgba(126,168,152,.08);border:1px solid rgba(126,168,152,.2);
+  border-radius:12px;padding:14px 18px;margin-bottom:24px;text-align:left;
+  display:flex;gap:12px;align-items:flex-start;}
+.enc-notice-icon{font-size:18px;flex-shrink:0;}
+.enc-notice-text{font-size:12px;color:rgba(245,240,232,.65);line-height:1.6;}
+.enc-notice-text strong{color:var(--sage);}
+
+/* ── ANALYZING ── */
+#page-analyzing{justify-content:center;align-items:center;padding:48px;}
+.analyzing-wrap{text-align:center;max-width:500px;}
+.analyzing-anim{position:relative;width:140px;height:140px;margin:0 auto 36px;}
+.anim-ring{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;animation:spin 2s linear infinite;}
+.anim-ring-1{border-top-color:var(--gold);}
+.anim-ring-2{inset:12px;border-top-color:var(--rose);animation-duration:2.8s;animation-direction:reverse;}
+.anim-ring-3{inset:24px;border-top-color:var(--sage);animation-duration:1.8s;}
+.anim-center{position:absolute;inset:36px;border-radius:50%;background:rgba(201,169,110,.1);
+  border:1px solid rgba(201,169,110,.2);display:flex;align-items:center;justify-content:center;font-size:28px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-track{background:rgba(245,240,232,.08);border-radius:100px;height:6px;overflow:hidden;margin-bottom:14px;}
+.progress-bar{height:100%;border-radius:100px;background:linear-gradient(to right,var(--gold),var(--gold-l));transition:width .5s ease;width:0%;}
+.an-step{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);transition:color .3s;}
+.an-step.done{color:var(--cream);}
+.an-step.active{color:var(--gold);}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s;}
+.an-step.done .step-dot{background:var(--sage);}
+.an-step.active .step-dot{background:var(--gold);animation:blink 1s infinite;}
+
+/* ── APP LAYOUT ── */
+.sidebar{width:var(--sidebar);flex-shrink:0;padding:28px 16px;
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  background:rgba(0,0,0,.18);position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar .logo{margin-bottom:40px;}
+.s-menu{display:flex;flex-direction:column;gap:2px;flex:1;}
+.s-item{display:flex;align-items:center;gap:11px;padding:10px 12px;
+  border-radius:10px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .2s;}
+.s-item:hover{background:var(--card);color:var(--cream);}
+.s-item.active{background:rgba(201,169,110,.12);color:var(--gold);}
+.s-item-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.sidebar-user{border-top:1px solid var(--border);padding-top:18px;margin-top:8px;display:flex;align-items:center;gap:10px;}
+.user-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--rose));
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--ink);flex-shrink:0;}
+.main-content{flex:1;overflow-y:auto;padding:36px;}
+
+/* DASHBOARD */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;}
+.page-h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;}
+.page-h1 em{color:var(--gold);font-style:italic;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:20px;}
+.kpi-n{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;}
+.kpi-l{font-size:11px;color:var(--muted);letter-spacing:.4px;margin-top:3px;}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:22px;}
+.card-title{font-size:12px;color:var(--muted);margin-bottom:16px;letter-spacing:.3px;}
+.chart-bars{display:flex;align-items:flex-end;gap:5px;height:70px;margin-bottom:24px;}
+.c-bar{flex:1;border-radius:4px 4px 0 0;background:rgba(201,169,110,.15);
+  cursor:pointer;transition:all .2s;position:relative;min-width:0;}
+.c-bar:hover{background:rgba(201,169,110,.3);}
+.c-bar.active{background:var(--gold);}
+.c-bar-tip{position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+  background:var(--ink);border:1px solid var(--border);border-radius:6px;
+  padding:3px 8px;font-size:10px;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;}
+.c-bar:hover .c-bar-tip{opacity:1;}
+.c-labels{display:flex;gap:5px;}
+.c-label{flex:1;text-align:center;font-size:9px;color:rgba(245,240,232,.3);}
+.season-row{display:flex;gap:10px;align-items:flex-end;height:80px;}
+.s-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.s-bar-bg{width:100%;border-radius:100px 100px 0 0;background:rgba(201,169,110,.1);position:relative;overflow:hidden;}
+.s-bar-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,var(--gold),var(--gold-l));border-radius:100px;transition:height 1.2s cubic-bezier(.16,1,.3,1);}
+.s-bar-lbl{font-size:10px;color:var(--muted);}
+.s-bar-pct{font-size:11px;font-weight:600;color:var(--gold);}
+.ai-insight{background:linear-gradient(135deg,rgba(201,169,110,.08),rgba(126,168,152,.06));
+  border:1px solid rgba(201,169,110,.18);border-radius:15px;padding:20px;
+  display:flex;gap:14px;margin-bottom:20px;}
+.ai-text{font-size:13px;line-height:1.65;color:rgba(245,240,232,.7);}
+.ai-text strong{color:var(--gold);}
+.albums-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
+.alb-mini{background:var(--card);border:1px solid var(--border);border-radius:13px;
+  padding:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:13px;}
+.alb-mini:hover{background:var(--card-h);border-color:rgba(201,169,110,.2);}
+.alb-mini.add{border-style:dashed;justify-content:center;color:var(--muted);}
+.alb-thumb{width:44px;height:44px;border-radius:9px;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* CREATE */
+.create-wrap{max-width:700px;margin:0 auto;}
+.step-indicator{display:flex;gap:4px;margin-bottom:8px;}
+.step-ind{flex:1;height:3px;background:var(--border);border-radius:100px;transition:background .4s;}
+.step-ind.done{background:var(--gold);}
+.step-ind.active{background:linear-gradient(to right,var(--gold),var(--gold-l));}
+.step-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:28px;}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;}
+.type-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:28px 22px;cursor:pointer;transition:all .25s;text-align:center;}
+.type-card:hover{background:var(--card-h);}
+.type-card.selected{border-color:var(--gold);background:rgba(201,169,110,.08);}
+.type-em{font-size:32px;display:block;margin-bottom:12px;}
+.type-t{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:6px;}
+.type-d{font-size:12px;color:var(--muted);line-height:1.6;}
+.field-label{font-size:12px;color:var(--muted);margin-bottom:8px;display:block;letter-spacing:.3px;}
+.field-group{margin-bottom:20px;}
+.date-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.range-slider{-webkit-appearance:none;width:100%;height:4px;border-radius:100px;background:var(--border);outline:none;cursor:pointer;}
+.range-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;}
+.style-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.pill{padding:8px 16px;border-radius:100px;border:1px solid var(--border);background:var(--card);font-size:12px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.pill:hover{border-color:rgba(201,169,110,.3);}
+.pill.selected{border-color:var(--gold);background:rgba(201,169,110,.1);color:var(--gold);}
+.processing-wrap{text-align:center;padding:48px 0;}
+.proc-anim{width:120px;height:120px;margin:0 auto 28px;position:relative;}
+.proc-pages{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px;animation:pageTurn 2s ease-in-out infinite;}
+@keyframes pageTurn{0%,100%{transform:scale(1)}50%{transform:scale(1.08) rotate(-3deg)}}
+.proc-spinner{position:absolute;inset:0;border-radius:50%;border:2px solid var(--border);border-top-color:var(--gold);animation:spin 1.5s linear infinite;}
+.done-wrap{text-align:center;padding:40px 0;}
+.done-icon{font-size:64px;margin-bottom:20px;animation:pop .5s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.done-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:10px;}
+.done-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:32px;}
+.pdf-preview{background:linear-gradient(135deg,rgba(126,168,152,.08),rgba(201,169,110,.05));
+  border:1px solid rgba(126,168,152,.25);border-radius:16px;padding:28px;
+  display:flex;align-items:center;gap:20px;margin-bottom:28px;text-align:left;}
+.pdf-thumb{width:60px;height:78px;background:linear-gradient(135deg,var(--gold),var(--rose));
+  border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.pdf-enc-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;
+  background:rgba(126,168,152,.12);border:1px solid rgba(126,168,152,.25);
+  color:var(--sage);font-size:10px;font-weight:600;margin-top:8px;}
+.timer{font-size:12px;color:var(--muted);margin-top:6px;}
+
+/* ── EDITOR ── */
+.editor-layout{display:grid;grid-template-columns:1fr 380px;gap:0;height:calc(100vh - 72px);overflow:hidden;}
+.editor-preview{padding:24px;overflow-y:auto;border-right:1px solid var(--border);}
+.editor-preview-title{font-size:12px;color:var(--muted);margin-bottom:16px;letter-spacing:.3px;}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.photo-slot{border-radius:10px;aspect-ratio:4/3;display:flex;align-items:center;
+  justify-content:center;font-size:22px;position:relative;cursor:pointer;
+  border:2px solid transparent;transition:all .2s;overflow:hidden;}
+.photo-slot:hover{border-color:rgba(201,169,110,.4);}
+.photo-slot.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,169,110,.15);}
+.photo-slot .remove-btn{position:absolute;top:4px;right:4px;width:22px;height:22px;
+  border-radius:50%;background:rgba(13,13,13,.8);border:none;color:var(--rose);
+  font-size:12px;cursor:pointer;opacity:0;transition:opacity .2s;display:flex;align-items:center;justify-content:center;}
+.photo-slot:hover .remove-btn{opacity:1;}
+.story-slot{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;display:grid;grid-template-columns:100px 1fr;gap:16px;margin-bottom:12px;cursor:pointer;transition:all .2s;}
+.story-slot:hover{border-color:rgba(201,169,110,.2);}
+.story-slot.selected{border-color:var(--gold);}
+.story-img{border-radius:8px;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.story-text-area{font-size:12px;color:rgba(245,240,232,.65);line-height:1.7;}
+.story-text-area .era{font-size:10px;color:var(--gold);font-weight:600;letter-spacing:.5px;margin-bottom:6px;}
+.story-text-area textarea.edit-text{width:100%;background:rgba(245,240,232,.06);
+  border:1px solid rgba(201,169,110,.3);border-radius:8px;padding:8px;
+  color:var(--cream);font-family:'DM Sans',sans-serif;font-size:12px;
+  line-height:1.6;resize:none;outline:none;display:none;}
+.editor-ai{display:flex;flex-direction:column;background:rgba(0,0,0,.2);}
+.editor-ai-header{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+.editor-ai-title{font-size:13px;font-weight:600;margin-bottom:4px;}
+.editor-ai-sub{font-size:11px;color:var(--muted);}
+.ai-messages{flex:1;padding:16px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;min-height:200px;}
+.ai-msg{padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:90%;}
+.ai-msg.bot{background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.12);align-self:flex-start;}
+.ai-msg.user{background:rgba(245,240,232,.08);align-self:flex-end;}
+.ai-msg.thinking{color:var(--gold);font-style:italic;}
+.quick-prompts{padding:12px 20px;display:flex;flex-direction:column;gap:6px;}
+.quick-prompt{padding:8px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);
+  font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;text-align:left;
+  font-family:'DM Sans',sans-serif;}
+.quick-prompt:hover{background:var(--card-h);color:var(--cream);}
+.ai-input-area{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:10px;}
+.ai-inp{flex:1;padding:11px 14px;border-radius:10px;background:rgba(245,240,232,.06);
+  border:1px solid var(--border);color:var(--cream);font-size:13px;
+  font-family:'DM Sans',sans-serif;outline:none;transition:border .2s;}
+.ai-inp:focus{border-color:rgba(201,169,110,.4);}
+.ai-inp::placeholder{color:rgba(245,240,232,.2);}
+.ai-send{padding:11px 16px;border-radius:10px;background:var(--gold);color:var(--ink);
+  border:none;cursor:pointer;font-size:16px;transition:all .2s;flex-shrink:0;}
+.ai-send:hover{background:var(--gold-l);}
+
+/* ALBUMS */
+.filter-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:11px;overflow:hidden;width:fit-content;margin-bottom:28px;}
+.f-tab{padding:9px 20px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);cursor:pointer;transition:all .2s;}
+.f-tab.active{background:rgba(201,169,110,.12);color:var(--gold);}
+.albums-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.album-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .25s;}
+.album-card:hover{border-color:rgba(201,169,110,.25);transform:translateY(-2px);}
+.album-cover{height:110px;display:flex;align-items:center;justify-content:center;font-size:36px;}
+.album-info{padding:16px;}
+.album-info .t{font-weight:600;font-size:14px;margin-bottom:4px;}
+.album-info .m{font-size:12px;color:var(--muted);}
+.alb-actions{display:flex;gap:6px;margin-top:10px;}
+.alb-btn{padding:5px 12px;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.alb-btn-down{background:rgba(201,169,110,.12);color:var(--gold);}
+.alb-btn-edit{background:rgba(126,168,152,.1);color:var(--sage);}
+.alb-btn-down:hover{background:rgba(201,169,110,.22);}
+.alb-btn-edit:hover{background:rgba(126,168,152,.2);}
+.alb-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:600;margin-bottom:6px;}
+.alb-badge.ready{background:rgba(126,168,152,.12);color:var(--sage);}
+.alb-badge.story{background:rgba(201,169,110,.1);color:var(--gold);}
+
+/* SETTINGS */
+.settings-wrap{max-width:600px;}
+.settings-sec{margin-bottom:32px;}
+.settings-sec-t{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.settings-row{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.toggle{width:40px;height:22px;border-radius:100px;background:var(--border);cursor:pointer;position:relative;transition:background .25s;border:none;flex-shrink:0;}
+.toggle.on{background:var(--gold);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:white;transition:transform .25s;}
+.toggle.on::after{transform:translateX(18px);}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block;margin-right:6px;}
+/* ── ANTI-CAPTURE ── */
+body { -webkit-user-select: none; user-select: none; }
+input, textarea, .ai-inp { -webkit-user-select: text !important; user-select: text !important; }
+@media print { body { display: none !important; } }
+.paywall-overlay { position:fixed;inset:0;z-index:99999;background:rgba(13,13,13,.97);
+  display:none;align-items:center;justify-content:center;padding:24px; }
+.paywall-overlay.show { display:flex; }
+.paywall-card { background:#1a1410;border:1px solid rgba(201,169,110,.25);border-radius:24px;
+  padding:44px;max-width:500px;width:100%;text-align:center; }
+.paywall-icon { font-size:56px;margin-bottom:20px;display:block; }
+.paywall-title { font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:12px; }
+.paywall-sub { font-size:14px;color:rgba(245,240,232,.55);line-height:1.7;margin-bottom:32px; }
+.paywall-plans { display:flex;flex-direction:column;gap:12px;margin-bottom:24px; }
+.paywall-plan { padding:18px 22px;border-radius:14px;border:1px solid rgba(245,240,232,.1);
+  cursor:pointer;transition:all .25s;text-align:left;background:rgba(245,240,232,.03); }
+.paywall-plan:hover { border-color:rgba(201,169,110,.4);background:rgba(201,169,110,.06); }
+.paywall-plan.best { border-color:rgba(201,169,110,.4);background:rgba(201,169,110,.06); }
+.pp-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; }
+.pp-name { font-weight:600;font-size:14px; }
+.pp-price { font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold); }
+.pp-desc { font-size:12px;color:rgba(245,240,232,.4); }
+.pp-badge { padding:3px 8px;border-radius:100px;background:var(--gold);color:var(--ink);font-size:10px;font-weight:700; }
+.capture-warn { position:fixed;bottom:20px;right:20px;z-index:99998;
+  background:#1a1410;border:1px solid rgba(201,117,110,.3);border-radius:12px;
+  padding:14px 18px;font-size:13px;color:var(--rose);display:none;
+  animation:slideUp .3s ease; }
+.capture-warn.show { display:block; }
+
+</style>
+</head>
+<body>
+
+<svg style="display:none">
+  <symbol id="lumio-logo" viewBox="0 0 36 36">
+    <rect width="36" height="36" rx="10" fill="#c9a96e" opacity="0.13"/>
+    <rect x="1" y="1" width="34" height="34" rx="9" fill="none" stroke="#c9a96e" stroke-width="1.4"/>
+    <circle cx="24.5" cy="11.5" r="3.2" fill="#c9a96e"/>
+    <path d="M4 28 L12.5 16 L19.5 22.5 L24 18 L32 28Z" fill="#c9a96e" opacity="0.85"/>
+  </symbol>
+</svg>
+
+<!-- ══════════════ LANDING ══════════════ -->
+<div id="page-landing" class="page active">
+<nav>
+  <span class="logo" onclick="goTo('landing')">
+    <svg class="logo-icon"><use href="#lumio-logo"/></svg>
+    <span class="logo-text">Lu<em>mio</em></span>
+  </span>
+  <div class="nav-links">
+    <a onclick="document.getElementById('problem-s').scrollIntoView({behavior:'smooth'})">Muammo</a>
+    <a onclick="document.getElementById('features-s').scrollIntoView({behavior:'smooth'})">Imkoniyatlar</a>
+    <a onclick="document.getElementById('security-s').scrollIntoView({behavior:'smooth'})">Xavfsizlik</a>
+    <a onclick="document.getElementById('pricing-s').scrollIntoView({behavior:'smooth'})">Narxlar</a>
+    <button class="btn-outline" onclick="goTo('auth')">Kirish</button>
+    <button class="btn-gold" onclick="goTo('auth')">Bepul boshlash</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="bg-mosaic" id="bgMosaic"></div>
+  <div class="hero-inner fade-in">
+    <div class="badge"><span class="badge-dot"></span>AI · Google Photos · AES-256 Shifrlash</div>
+    <h1>Telefoningizda<br><em>5,000+ rasm bor.</em></h1>
+    <p class="hero-sub">Oxirgi marta qachon ko'rgansiz? Ularning 73%i hech qachon qaytib ko'rilmaydi. Lumio shu muammoni hal qiladi — 3 daqiqada.</p>
+    <div class="hero-ctas">
+      <button class="btn-gold" style="padding:15px 36px;font-size:15px" onclick="goTo('auth')">🔐 Bepul boshlash</button>
+      <button class="btn-outline" style="padding:15px 32px;font-size:15px" onclick="document.getElementById('problem-s').scrollIntoView({behavior:'smooth'})">Qanday ishlaydi?</button>
+    </div>
+  </div>
+  <div class="hero-stats fade-in">
+    <div class="hero-stat"><span class="n">1.94T</span><span class="l">Yiliga olingan rasmlar</span></div>
+    <div class="hero-stat"><span class="n">73%</span><span class="l">Hech ko'rilmaydi</span></div>
+    <div class="hero-stat"><span class="n">$0</span><span class="l">Serverda rasm saqlanmaydi</span></div>
+    <div class="hero-stat"><span class="n">AES-256</span><span class="l">PDF shifrlash darajasi</span></div>
+  </div>
+  <div class="scroll-hint"><div class="scroll-line"></div><span>PASTGA</span></div>
+</section>
+
+<!-- PROBLEM -->
+<div id="problem-s" class="problem-section">
+  <div class="problem-inner">
+    <div class="problem-quote">Har yili siz <span>minglab rasm</span> olasiz.<br>Ularni hech qachon albomga joylashtirmaysiz.</div>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <span class="pain-icon">😔</span>
+        <div class="pain-t">Rasmlar yo'qolib ketadi</div>
+        <p class="pain-d">Telefonni almashtirganda, bulut to'lganida yoki shunchaki esdan chiqib — qimmatli lahzalar yo'qoladi. Hech qachon albomga joylashtirilmagan rasmlar aslida yo'q bo'lgandek.</p>
+        <div class="pain-stat">2,795</div>
+        <div style="font-size:11px;color:var(--muted)">O'rtacha telefondagi rasm soni</div>
+      </div>
+      <div class="pain-card">
+        <span class="pain-icon">⏳</span>
+        <div class="pain-t">Saralash uchun vaqt yo'q</div>
+        <p class="pain-d">3,000 rasm ichidan 50 tasini tanlash — 3 soat vaqt. Ish, oila, kundalik hayot... "Keyinroq qilaman" deysiz. Lekin "keyinroq" hech qachon kelmaydi.</p>
+        <div class="pain-stat">3 soat</div>
+        <div style="font-size:11px;color:var(--muted)">Yillik albom qo'lda yaratish vaqti</div>
+      </div>
+      <div class="pain-card">
+        <span class="pain-icon">💔</span>
+        <div class="pain-t">Eng muhim lahzalar unutiladi</div>
+        <p class="pain-d">Farzandingizning birinchi qadami. Buvingiizning oxirgi bayram kechasidagi tabassum. Ular telefonningizda bor — lekin hech kim ko'rmaydi. Hech qachon hikoya bo'lmaydi.</p>
+        <div class="pain-stat">73%</div>
+        <div style="font-size:11px;color:var(--muted)">Rasmlar hech qaytib ko'rilmaydi</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLUTION BRIDGE -->
+<div class="bridge">
+  <div class="bridge-inner">
+    <span class="bridge-arrow">✨</span>
+    <h2>Lumio buni <em>hal qiladi.</em></h2>
+    <p style="font-size:16px;color:var(--muted);line-height:1.8;margin-top:16px">
+      Google Photos'ingizni ulaysiz. AI barcha rasmlaringizni tahlil qilib, eng yaxshi lahzalarni tanlab, chiroyli PDF albom yaratadi. Siz hech narsa qilmaysiz. Rasmlaringiz serverimizga kelmaydi.
+    </p>
+    <button class="btn-gold" style="margin-top:32px;padding:14px 36px;font-size:15px" onclick="goTo('auth')">Hozir boshlash — Bepul</button>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="s" id="features-s">
+  <span class="s-label">Imkoniyatlar</span>
+  <h2 class="s-title">Bir platformada — hamma narsa</h2>
+  <p class="s-sub">Rasmlardan statistika, albom, ertak — va endi AI orqali tahrirlash imkoni.</p>
+  <div class="feat-grid">
+    <div class="feat">
+      <span class="feat-icon">📊</span>
+      <div class="feat-t">Rasm Statistikasi</div>
+      <p class="feat-d">Qaysi yili, qaysi faslda ko'proq rasm olgansiz, qanday mavzular ustunligi — AI avtomatik tahlil qilib, Firebase'da matn sifatida saqlaydi. Dashboard'da interaktiv ko'rinishda.</p>
+      <span class="feat-tag">Avtomatik</span>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">✨</span>
+      <div class="feat-t">AI Albom Yaratish</div>
+      <p class="feat-d">3,000 rasm ichidan eng yaxshi 50 tani AI tanlaydi — tabassum, o'tkir fokus, takrorlanmas lahza mezoni asosida. Tayyor PDF albom 3 daqiqada.</p>
+      <span class="feat-tag">AI Powered</span>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">📖</span>
+      <div class="feat-t">Ertak-Albom</div>
+      <p class="feat-d">Farzandingizning tug'ilishidan bugungi kungacha — yuz aniqlash orqali rasmlar topiladi, har davr uchun ertak uslubida matn yoziladi. O'zbek, Rus, Ingliz tillarida.</p>
+      <span class="feat-tag">Maxsus</span>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">✏️</span>
+      <div class="feat-t">AI orqali Tahrirlash</div>
+      <p class="feat-d">Yaratilgan albomni AI yordamida tahrirlamasiz: "Bu rasmni olib tashlang", "Ertakni she'riyroq qiling", "Dekabr oyidan ko'proq rasm qo'shing" — matn yozing, AI qiladi.</p>
+      <span class="feat-tag feat-new">Yangi</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="s">
+  <span class="s-label">Qanday ishlaydi</span>
+  <h2 class="s-title">4 oddiy qadam</h2>
+  <div class="how-wrap">
+    <div class="how-steps">
+      <div class="how-step"><div class="step-n">🔗</div><div class="step-t">Google ulang</div><p class="step-d">Bir klik. Faqat ko'rish huquqi so'raladi — rasmlar serverimizga kelmaydi.</p></div>
+      <div class="how-step"><div class="step-n">🤖</div><div class="step-t">AI tahlil qiladi</div><p class="step-d">Barcha rasmlar sifat, yuz ifodasi, voqea, fasl bo'yicha tahlil qilinadi.</p></div>
+      <div class="how-step"><div class="step-n">📄</div><div class="step-t">PDF tayyor bo'ladi</div><p class="step-d">3 daqiqada. AES-256 shifrlangan holda Firebase'ga yuklanadi.</p></div>
+      <div class="how-step"><div class="step-n">✏️</div><div class="step-t">Tahrirlang yoki yuklab oling</div><p class="step-d">AI orqali sozlang yoki to'g'ridan-to'g'ri yuklab oling. 24 soatdan keyin o'chadi.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY SECTION -->
+<div id="security-s" class="security-section">
+  <div class="security-inner">
+    <div>
+      <span class="s-label">Maxfiylik va Xavfsizlik</span>
+      <h2 class="s-title" style="max-width:500px">Hatto biz ham<br>ko'ra olmaymiz</h2>
+      <p class="s-sub" style="margin-bottom:36px">Lumio "Nolchi Bilim" (Zero-Knowledge) arxitekturasida qurilgan. Sizning rasmlaringiz va PDF albomlaringiz faqat sizning kalitingiz bilan ochiladi.</p>
+      <div class="sec-list">
+        <div class="sec-item">
+          <div class="sec-item-icon">🚫</div>
+          <div><div class="sec-item-t">Rasmlar serverga kelmaydi</div><div class="sec-item-d">Tahlil Google/Apple APIsi orqali to'g'ridan-to'g'ri amalga oshiriladi. Rasmlar bizning serverlarimiz diskiga hech qachon yozilmaydi.</div></div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-item-icon">🔑</div>
+          <div><div class="sec-item-t">PDF — AES-256-GCM shifrlash</div><div class="sec-item-d">PDF yaratilishi bilanoq AES-256-GCM algoritmi bilan shifrlangan holda Firebase Storage'ga yuklanadi. Shifrlash kaliti faqat sizda.</div></div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-item-icon">👁️‍🗨️</div>
+          <div><div class="sec-item-t">Admin ham ko'ra olmaydi</div><div class="sec-item-d">Firebase Storage qoidalari: faqat autentifikatsiyalangan egasi o'z fayllarini o'qiy oladi. Admin panelida fayllar faqat metadata sifatida ko'rinadi — mazmuni yo'q.</div></div>
+        </div>
+        <div class="sec-item">
+          <div class="sec-item-icon">⏱️</div>
+          <div><div class="sec-item-t">24 soatda avtomatik o'chirish</div><div class="sec-item-d">Har 6 soatda Firebase Cloud Function muddati o'tgan fayllarni avtomatik o'chiradi. Sizning ruxsatingizsiz hech narsa saqlanmaydi.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-badge-big">
+      <span class="sec-icon-big">🔐</span>
+      <div class="sec-badge-title">Zero-Knowledge Encryption</div>
+      <p class="sec-badge-sub">Sizning PDF albomlaringizni faqat siz ko'ra olasiz. Lumio jamoasi, serverlar va ma'murlar — hech biri.</p>
+      <div class="sec-badge-chip">AES-256-GCM · Firebase Rules · Zero-Storage</div>
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(245,240,232,.08)">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">TASDIQLANGAN STANDARTLAR</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Shifrlash</span><span style="color:var(--sage)">AES-256-GCM ✓</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Saqlash</span><span style="color:var(--sage)">Firebase + Rules ✓</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Rasm oqimi</span><span style="color:var(--sage)">RAM only, no disk ✓</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Admin kirishi</span><span style="color:var(--rose)">Bloklangan ✗</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<section class="s">
+  <span class="s-label">Foydalanuvchilar</span>
+  <h2 class="s-title">Ular allaqachon<br>boshlagan</h2>
+  <div class="testi-grid">
+    <div class="testi">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-q">"Qizimning 5 yillik rasmlaridan Lumio ertak-albom yaratdi. Ko'rganida yig'lab yubordi. Bu sovg'ani hech qayerdan topa olmagan bo'lardim."</p>
+      <div class="testi-author">
+        <div class="testi-av" style="background:linear-gradient(135deg,#c9a96e,#c97b6e)">S</div>
+        <div><div class="testi-name">Sarah K.</div><div class="testi-loc">Austin, AQSh</div></div>
+      </div>
+    </div>
+    <div class="testi">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-q">"2023 yilgi Italiya sayohatimizdan 847 rasm olgandim. Lumio ulardan 43 tasini tanlab, hayotimda ko'rgan eng chiroyli albomni yaratdi."</p>
+      <div class="testi-author">
+        <div class="testi-av" style="background:linear-gradient(135deg,#7ea898,#4a7a6a)">M</div>
+        <div><div class="testi-name">Marco B.</div><div class="testi-loc">Milano, Italiya</div></div>
+      </div>
+    </div>
+    <div class="testi">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-q">"Rasmlarim serverga kelmaydi degan kafolat menga eng muhimi edi. AES-256 shifrlash — bu faqat bank darajasidagi platformalarda bo'ladi."</p>
+      <div class="testi-author">
+        <div class="testi-av" style="background:linear-gradient(135deg,#c97b6e,#a05540)">T</div>
+        <div><div class="testi-name">Tanaka H.</div><div class="testi-loc">Tokyo, Yaponiya</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="s" id="pricing-s">
+  <span class="s-label">Narxlar</span>
+  <h2 class="s-title">Oddiy, shaffof, adolatli</h2>
+  <p class="s-sub">Birinchi generatsiya bepul — natijani ko'ring, yoqsa obuna oling.</p>
+  <div class="price-grid">
+    <div class="price-card">
+      <div class="price-name">Oylik</div>
+      <div class="price-n"><sup>$</sup>4.99</div>
+      <div class="price-p">oyiga · istalgan vaqt bekor qilish</div>
+      <ul class="price-ul">
+        <li>Oyiga 3 ta PDF albom yuklab olish</li>
+        <li>Yil xulosasi, sayohat, tadbir albomi</li>
+        <li>AES-256 shifrlangan PDF</li>
+        <li>AI tahrirlash: 3 prompt/albom</li>
+        <li>48 soat PDF saqlash</li>
+        <li>3 ta til (O'zbek, Rus, Ingliz)</li>
+        <li style="color:rgba(245,240,232,.4)">&#10005; Ertak-Albom yo'q</li>
+        <li style="color:rgba(245,240,232,.4)">&#10005; Watermark bor</li>
+      </ul>
+      <button class="btn-price btn-outline" onclick="goTo('auth')">Boshlash</button>
+    </div>
+    <div class="price-card hot">
+      <div class="price-name" style="color:var(--gold)">Yillik</div>
+      <div class="price-n"><sup>$</sup>34.99</div>
+      <div class="price-p">yiliga · Birinchi albom bepul</div>
+      <ul class="price-ul">
+        <li>Cheksiz PDF albomlar yuklab olish</li>
+        <li>Ertak-Albom + barcha turlar</li>
+        <li>Cheksiz AI tahrirlash (limit yo'q)</li>
+        <li>7 kun PDF saqlash</li>
+        <li>Barcha 6 ta til</li>
+        <li>Statistika + AI xulosalari</li>
+        <li>Avtomatik yillik xulosa</li>
+        <li>Watermark yo'q</li>
+      </ul>
+      <button class="btn-price btn-gold" onclick="goTo('auth')">Hozir boshlash</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div style="background:linear-gradient(135deg,rgba(201,169,110,.08),rgba(126,168,152,.06));border-top:1px solid rgba(201,169,110,.15);border-bottom:1px solid rgba(201,169,110,.15);padding:64px 80px;text-align:center">
+  <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,48px);font-weight:700;letter-spacing:-2px;margin-bottom:16px">Bugun boshlamasangiz,<br><em style="color:var(--gold);font-style:italic">bu yil ham o'tib ketadi.</em></h2>
+  <p style="color:var(--muted);font-size:15px;margin-bottom:32px">Birinchi albom bepul. Karta talab qilinmaydi.</p>
+  <button class="btn-gold" style="padding:16px 48px;font-size:16px" onclick="goTo('auth')">✨ Bepul boshlash</button>
+</div>
+
+<footer>
+  <span class="logo" onclick="goTo('landing')">
+    <svg class="logo-icon"><use href="#lumio-logo"/></svg>
+    <span class="logo-text">Lu<em>mio</em></span>
+  </span>
+  <span>© 2025 Lumio · Zero-Knowledge Encryption · Firebase · Google Photos API</span>
+  <span>support@lumio.app</span>
+</footer>
+</div>
+
+<!-- ══════════════ AUTH ══════════════ -->
+<div id="page-auth" class="page">
+  <nav>
+    <span class="logo" onclick="goTo('landing')"><svg class="logo-icon"><use href="#lumio-logo"/></svg><span class="logo-text">Lu<em>mio</em></span></span>
+    <button class="btn-ghost" onclick="goTo('landing')">← Ortga</button>
+  </nav>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:100px 24px 48px">
+    <div class="fade-in" style="width:100%;max-width:420px">
+      <div class="auth-card">
+        <div id="auth-title" class="auth-title">Xush kelibsiz</div>
+        <div id="auth-sub" class="auth-sub">Xotiralaringizni jonlantiring</div>
+        <button class="g-btn" onclick="handleGoogleLogin()">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+          Google bilan kirish
+        </button>
+        <div class="divider">yoki</div>
+        <input id="inp-name" class="inp" type="text" placeholder="Ismingiz" style="display:none">
+        <input id="inp-email" class="inp" type="email" placeholder="Email manzilingiz">
+        <div class="err-msg" id="err-email">To'g'ri email kiriting</div>
+        <input id="inp-pass" class="inp" type="password" placeholder="Parol">
+        <div class="err-msg" id="err-pass">Parol kamida 6 belgi bo'lsin</div>
+        <button class="btn-gold" style="width:100%;padding:14px;font-size:14px;margin-top:4px" onclick="handleEmailLogin()"><span id="auth-btn-text">Kirish</span></button>
+        <div class="auth-toggle" id="auth-toggle">Hisobingiz yo'qmi? <a onclick="toggleAuthMode()">Ro'yxatdan o'ting</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CONNECT ══════════════ -->
+<div id="page-connect" class="page">
+  <nav><span class="logo" onclick="return false"><svg class="logo-icon"><use href="#lumio-logo"/></svg><span class="logo-text">Lu<em>mio</em></span></span><button class="btn-ghost" onclick="goTo('auth')">← Ortga</button></nav>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:100px 24px 48px">
+    <div class="connect-card fade-in">
+      <span style="font-size:52px;margin-bottom:24px;display:block">📸</span>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:12px">Google Photos ulang</div>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px">Rasmlaringizni tahlil qilish uchun ulang. Rasmlar serverimizga kelmaydi.</p>
+      <div class="enc-notice">
+        <span class="enc-notice-icon">🔐</span>
+        <div class="enc-notice-text"><strong>Xavfsizlik kafolati:</strong> Rasmlaringiz bizning serverlarimiz diskiga hech qachon yozilmaydi. Tahlil Google APIsi orqali amalga oshiriladi. Faqat tayyor PDF yaratiladi va u ham <strong>AES-256-GCM</strong> bilan shifrlangan holda saqlanadi.</div>
+      </div>
+      <div style="background:var(--card);border-radius:14px;padding:18px;margin-bottom:24px;text-align:left">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">SO'RAILAYOTGAN HUQUQLAR</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(245,240,232,.65);padding:7px 0;border-bottom:1px solid var(--border)">👁️ Rasmlarni ko'rish (faqat o'qish)</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(245,240,232,.65);padding:7px 0;border-bottom:1px solid var(--border)">📅 Sana va joylashuv metadatasi</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:var(--rose);padding:7px 0">🚫 Rasmlarni yuklab olish yoki o'zgartirish — YO'Q</div>
+      </div>
+      <button class="btn-gold" style="width:100%;padding:15px;font-size:15px" onclick="handleConnect()">Google Photos bilan ulash</button>
+      <button class="btn-ghost" style="width:100%;margin-top:12px;padding:12px" onclick="goTo('dashboard');buildCharts()">Demo rejimda davom eting →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ANALYZING ══════════════ -->
+<div id="page-analyzing" class="page">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:48px">
+    <div class="analyzing-wrap fade-in">
+      <div class="analyzing-anim">
+        <div class="anim-ring anim-ring-1"></div>
+        <div class="anim-ring anim-ring-2"></div>
+        <div class="anim-ring anim-ring-3"></div>
+        <div class="anim-center">📸</div>
+      </div>
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:12px">Rasmlar tahlil qilinmoqda</div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:32px">Rasmlar serverimizga kelmaydi — faqat tahlil natijasi saqlanadi</p>
+      <div class="progress-track"><div class="progress-bar" id="prog-bar"></div></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:24px" id="prog-label">0 / 4,821 rasm</div>
+      <div style="display:flex;flex-direction:column;gap:10px;text-align:left">
+        <div class="an-step" id="an-s1"><span class="step-dot"></span>Google Photos'ga ulanish</div>
+        <div class="an-step" id="an-s2"><span class="step-dot"></span>Rasm metadatasini olish</div>
+        <div class="an-step" id="an-s3"><span class="step-dot"></span>AI sifat tahlili (RAM only)</div>
+        <div class="an-step" id="an-s4"><span class="step-dot"></span>Statistika hisoblash</div>
+        <div class="an-step" id="an-s5"><span class="step-dot"></span>Firebase'ga shifrlangan saqlash</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="sidebar">
+    <span class="logo" onclick="return false"><svg class="logo-icon"><use href="#lumio-logo"/></svg><span class="logo-text">Lu<em>mio</em></span></span>
+    <div class="s-menu">
+      <div class="s-item active" onclick="showApp('dashboard')"><span class="s-item-icon">📊</span>Dashboard</div>
+      <div class="s-item" onclick="showApp('create')"><span class="s-item-icon">✨</span>Albom yarat</div>
+      <div class="s-item" onclick="showApp('story')"><span class="s-item-icon">📖</span>Ertak-Albom</div>
+      <div class="s-item" onclick="showApp('albums')"><span class="s-item-icon">🗂️</span>Mening albomlarim</div>
+      <div class="s-item" onclick="showApp('settings')"><span class="s-item-icon">⚙️</span>Sozlamalar</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-av" id="user-av">A</div>
+      <div><div style="font-size:13px;font-weight:500" id="user-name-s">Aziz</div><div style="font-size:11px;color:var(--muted)">Pro · Yillik</div></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="app-dashboard" class="main-content">
+    <div class="page-header fade-in">
+      <div><div class="page-h1">Salom, <em id="greet-name">Aziz!</em></div><div class="page-sub">4,821 ta rasm tahlil qilindi · Bugun yangilandi</div></div>
+      <button class="btn-gold" onclick="showApp('create')">✨ Albom yarat</button>
+    </div>
+    <div class="kpi-row fade-in">
+      <div class="kpi"><div class="kpi-n" style="color:var(--gold)">4,821</div><div class="kpi-l">JAMI RASMLAR</div></div>
+      <div class="kpi"><div class="kpi-n">2024</div><div class="kpi-l">ENG FAOL YIL</div></div>
+      <div class="kpi"><div class="kpi-n" style="color:var(--sage)">Yoz ☀️</div><div class="kpi-l">SEVIMLI FASL</div></div>
+      <div class="kpi"><div class="kpi-n" id="album-count-kpi">0</div><div class="kpi-l">ALBOMLAR</div></div>
+    </div>
+    <div class="row-2 fade-in">
+      <div class="card"><div class="card-title">YILLAR BO'YICHA RASMLAR</div><div class="chart-bars" id="year-chart"></div><div class="c-labels" id="year-labels"></div></div>
+      <div class="card"><div class="card-title">FASLLARGA KO'RA TAQSIMOT</div><div class="season-row" id="season-chart"></div></div>
+    </div>
+    <div class="ai-insight fade-in"><span style="font-size:22px;flex-shrink:0">✨</span><div class="ai-text"><strong>AI xulosasi:</strong> Rasmlaringiz tahlili bo'yicha siz <strong>tabiat va oila</strong> lahzalarini sevishingiz aniq. Yoz oylarida aktivligingiz oshadi. Dekabr oyida portret rasmlar ko'payadi — bayramlar sizga muhim.</div></div>
+    <div class="card fade-in"><div class="card-title">SO'NGGI ALBOMLAR</div><div class="albums-mini" id="dash-albums"><div class="alb-mini add" onclick="showApp('create')"><span style="font-size:22px;margin-right:8px">+</span>Yangi albom</div></div></div>
+  </div>
+
+  <!-- CREATE -->
+  <div id="app-create" class="main-content" style="display:none">
+    <div class="page-header fade-in"><div><div class="page-h1">✨ Albom Yarat</div><div class="page-sub">Tur tanlang va sozlamalarni belgilang</div></div></div>
+    <div class="create-wrap fade-in">
+      <div id="cr-step1">
+        <div class="step-indicator"><div class="step-ind active"></div><div class="step-ind"></div><div class="step-ind"></div></div>
+        <div class="step-label"><span>Tur tanlash</span><span>Sozlamalar</span><span>Yaratish</span></div>
+        <div class="type-grid">
+          <div class="type-card" onclick="selectType(this,'yearly')"><span class="type-em">🌟</span><div class="type-t">Yil Xulosasi</div><p class="type-d">2024 yilning eng yaxshi 50 lahzasi avtomatik tanlanadi</p></div>
+          <div class="type-card" onclick="selectType(this,'travel')"><span class="type-em">✈️</span><div class="type-t">Sayohat Albomi</div><p class="type-d">Sayohatdagi rasmlardan chiroyli albom</p></div>
+          <div class="type-card" onclick="selectType(this,'event')"><span class="type-em">🎉</span><div class="type-t">Tadbir / Bayram</div><p class="type-d">To'y, tug'ilgan kun yoki boshqa tadbirlar</p></div>
+          <div class="type-card" onclick="selectType(this,'custom')"><span class="type-em">🎨</span><div class="type-t">Maxsus Albom</div><p class="type-d">O'z sana oralig'i va filtrlaringizni belgilang</p></div>
+        </div>
+        <button class="btn-gold" id="cr-next1" disabled onclick="crStep(2)" style="padding:14px 36px">Davom eting →</button>
+      </div>
+      <div id="cr-step2" style="display:none">
+        <div class="step-indicator"><div class="step-ind done"></div><div class="step-ind active"></div><div class="step-ind"></div></div>
+        <div class="step-label"><span>Tur ✓</span><span>Sozlamalar</span><span>Yaratish</span></div>
+        <div class="field-group"><label class="field-label">ALBOM NOMI</label><input class="inp" id="cr-album-name" placeholder="Masalan: 2024 Yil Xulosasi"></div>
+        <div class="field-group"><label class="field-label">SANA ORALIG'I</label><div class="date-row"><input class="inp" type="date" id="cr-date-from" value="2024-01-01"><input class="inp" type="date" id="cr-date-to" value="2024-12-31"></div></div>
+        <div class="field-group"><label class="field-label">RASM SONI: <span id="cr-count-label">40</span> ta</label><input class="range-slider" type="range" min="20" max="80" value="40" oninput="document.getElementById('cr-count-label').textContent=this.value"></div>
+        <div class="field-group"><label class="field-label">USLUB</label><div class="style-pills"><div class="pill selected" onclick="togglePill(this)">Klassik</div><div class="pill" onclick="togglePill(this)">Minimalist</div><div class="pill" onclick="togglePill(this)">Vintage</div><div class="pill" onclick="togglePill(this)">Modern</div></div></div>
+        <div style="display:flex;gap:12px"><button class="btn-outline" onclick="crStep(1)" style="padding:13px 28px">← Ortga</button><button class="btn-gold" onclick="checkAndCreate()" style="padding:13px 36px">Albom yarat →</button></div>
+      </div>
+      <div id="cr-step3" style="display:none">
+        <div class="step-indicator"><div class="step-ind done"></div><div class="step-ind done"></div><div class="step-ind active"></div></div>
+        <div id="cr-processing" class="processing-wrap">
+          <div class="proc-anim"><div class="proc-spinner"></div><div class="proc-pages">📄</div></div>
+          <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:8px">Albom yaratilmoqda...</div>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:28px">AI rasmlarni tahlil qilib eng yaxshilarini tanlayapti</p>
+          <div class="progress-track"><div class="progress-bar" id="cr-prog"></div></div>
+        </div>
+        <div id="cr-done" class="done-wrap" style="display:none">
+          <div class="done-icon">🎉</div>
+          <div class="done-title">Albomingiz tayyor!</div>
+          <p class="done-sub">AI <span id="done-count">40</span> ta eng yaxshi rasmni tanlab, chiroyli albom yaratdi.</p>
+          <div class="pdf-preview">
+            <div class="pdf-thumb">📄</div>
+            <div>
+              <div style="font-weight:600;font-size:15px;margin-bottom:4px" id="done-title-t">Albomim</div>
+              <div style="font-size:12px;color:var(--muted)" id="done-meta-t">40 rasm · PDF</div>
+              <div class="pdf-enc-badge">🔐 AES-256-GCM Shifrlangan</div>
+              <div class="timer" id="done-timer">⏱ 24:00:00 qoldi</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn-gold" style="padding:13px 28px" onclick="downloadAlbum(event)">📥 PDF Yuklab olish</button>
+            <button class="btn-outline" style="padding:13px 24px;color:var(--sage);border-color:rgba(126,168,152,.3)" onclick="openEditor('album')">✏️ AI tahrirlash</button>
+            <button class="btn-ghost" style="padding:13px" onclick="showApp('albums')">Albomlarimga →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORY -->
+  <div id="app-story" class="main-content" style="display:none">
+    <div class="page-header fade-in"><div><div class="page-h1">📖 Ertak-Albom</div><div class="page-sub">Farzandingizning hayot hikoyasini rasmli ertak sifatida yarating</div></div></div>
+    <div class="create-wrap fade-in">
+      <div id="st-step1">
+        <div class="step-indicator"><div class="step-ind active"></div><div class="step-ind"></div><div class="step-ind"></div></div>
+        <div class="step-label"><span>Shaxs</span><span>Sozlamalar</span><span>Yaratish</span></div>
+        <div class="field-group"><label class="field-label">FARZANDINGIZ ISMI</label><input class="inp" id="st-name" placeholder="Masalan: Layla"></div>
+        <div class="field-group"><label class="field-label">SANA ORALIG'I</label><div class="date-row"><input class="inp" type="date" id="st-from" value="2018-05-10"><input class="inp" type="date" id="st-to" value="2025-01-01"></div></div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;margin-bottom:20px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">AI QANDAY ISHLAYDI</div>
+          <div style="font-size:13px;color:rgba(245,240,232,.65);line-height:1.7">🔍 Yuz aniqlash orqali barcha rasmlardan shu shaxsni topadi<br>📅 Vaqt bo'yicha tartiblashtiradi<br>✍️ Har davr uchun ertak uslubida matn yozadi<br>✏️ Yaratilgandan so'ng AI orqali tahrirlash mumkin</div>
+        </div>
+        <button class="btn-gold" onclick="stStep(2)" style="padding:14px 36px">Davom eting →</button>
+      </div>
+      <div id="st-step2" style="display:none">
+        <div class="step-indicator"><div class="step-ind done"></div><div class="step-ind active"></div><div class="step-ind"></div></div>
+        <div class="step-label"><span>Shaxs ✓</span><span>Sozlamalar</span><span>Yaratish</span></div>
+        <div class="field-group"><label class="field-label">ERTAK USLUBI</label><div class="style-pills"><div class="pill selected" onclick="togglePill(this)">📖 Bolalar ertagi</div><div class="pill" onclick="togglePill(this)">💝 Romantik</div><div class="pill" onclick="togglePill(this)">📜 Biografik</div><div class="pill" onclick="togglePill(this)">🌸 She'riy</div></div></div>
+        <div class="field-group"><label class="field-label">TIL</label><div class="style-pills"><div class="pill selected" onclick="togglePill(this)">🇺🇿 O'zbek</div><div class="pill" onclick="togglePill(this)">🇷🇺 Rus</div><div class="pill" onclick="togglePill(this)">🇬🇧 Ingliz</div></div></div>
+        <div class="field-group"><label class="field-label">RASM SONI: <span id="st-count-lbl">30</span> ta</label><input class="range-slider" type="range" min="15" max="60" value="30" oninput="document.getElementById('st-count-lbl').textContent=this.value"></div>
+        <div style="display:flex;gap:12px"><button class="btn-outline" onclick="stStep(1)" style="padding:13px 28px">← Ortga</button><button class="btn-gold" onclick="checkAndCreateStory()" style="padding:13px 32px">Ertak yaratish →</button></div>
+      </div>
+      <div id="st-step3" style="display:none">
+        <div class="step-indicator"><div class="step-ind done"></div><div class="step-ind done"></div><div class="step-ind active"></div></div>
+        <div id="st-processing" class="processing-wrap">
+          <div class="proc-anim"><div class="proc-spinner"></div><div class="proc-pages">📖</div></div>
+          <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:8px">Ertak yozilmoqda...</div>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:28px">AI yuz aniqlash va ertak yaratish ustida ishlayapti</p>
+          <div class="progress-track"><div class="progress-bar" id="st-prog"></div></div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;text-align:left">
+            <div class="an-step" id="st-s1"><span class="step-dot"></span>Yuz aniqlash — <span id="st-name-show">Layla</span> topilmoqda</div>
+            <div class="an-step" id="st-s2"><span class="step-dot"></span>Vaqt bo'yicha tartiblashtirish</div>
+            <div class="an-step" id="st-s3"><span class="step-dot"></span>Ertak matnlari yozilmoqda</div>
+            <div class="an-step" id="st-s4"><span class="step-dot"></span>PDF shifrlangan holda saqlanmoqda</div>
+          </div>
+        </div>
+        <div id="st-done" class="done-wrap" style="display:none">
+          <div class="done-icon">📖</div>
+          <div class="done-title" id="st-done-title">Ertak tayyor!</div>
+          <p class="done-sub"><span id="st-done-name">Layla</span>ning hayot hikoyasi <span id="st-done-count">30</span> ta rasm bilan yozildi.</p>
+          <div class="pdf-preview">
+            <div class="pdf-thumb" style="background:linear-gradient(135deg,var(--sage),#4a7a6a)">📖</div>
+            <div>
+              <div style="font-weight:600;font-size:15px;margin-bottom:4px" id="st-done-meta-t">Layla — Hayot Ertagi</div>
+              <div style="font-size:12px;color:var(--muted)">30 rasm + ertak matnlari · PDF</div>
+              <div class="pdf-enc-badge">🔐 AES-256-GCM Shifrlangan</div>
+              <div class="timer">⏱ 24:00:00 qoldi</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn-gold" style="padding:13px 28px" onclick="downloadAlbum(event)">📥 PDF Yuklab olish</button>
+            <button class="btn-outline" style="padding:13px 24px;color:var(--sage);border-color:rgba(126,168,152,.3)" onclick="openEditor('story')">✏️ AI tahrirlash</button>
+            <button class="btn-ghost" style="padding:13px" onclick="showApp('albums')">Albomlarimga →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="app-editor" class="main-content" style="display:none;padding:0">
+    <div style="padding:20px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px">
+      <button class="btn-ghost" onclick="showApp('albums')">← Ortga</button>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700" id="editor-title">Albom tahrirlash</div>
+      <div class="pdf-enc-badge" style="margin-left:auto">🔐 AES-256-GCM Shifrlangan</div>
+      <button class="btn-gold" style="padding:10px 24px;font-size:13px" onclick="saveEdits()">💾 Saqlash</button>
+    </div>
+    <div class="editor-layout">
+      <div class="editor-preview">
+        <div class="editor-preview-title" id="editor-preview-label">ALBOM — 40 RASM</div>
+        <div id="editor-content"></div>
+      </div>
+      <div class="editor-ai" style="display:flex;flex-direction:column">
+        <div class="editor-ai-header">
+          <div class="editor-ai-title">✨ AI Tahrirlash</div>
+          <div class="editor-ai-sub">Matn yozing — AI bajaradi</div>
+        </div>
+        <div class="ai-messages" id="ai-messages">
+          <div class="ai-msg bot">Salom! Albomingizni qanday tahrirlamoqchisiz? Matn yozing yoki quyidagi tezkor buyruqlardan birini tanlang.</div>
+        </div>
+        <div class="quick-prompts" id="quick-prompts"></div>
+        <div class="ai-input-area">
+          <input class="ai-inp" id="ai-prompt" placeholder="Masalan: Bu rasmni olib tashlang..." onkeydown="if(event.key==='Enter')sendAiPrompt()">
+          <button class="ai-send" onclick="sendAiPrompt()">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY ALBUMS -->
+  <div id="app-albums" class="main-content" style="display:none">
+    <div class="page-header fade-in"><div><div class="page-h1">🗂️ Mening Albomlarim</div><div class="page-sub" id="alb-count-sub">Jami 0 ta albom</div></div><button class="btn-gold" onclick="showApp('create')">+ Yangi albom</button></div>
+    <div class="fade-in">
+      <div class="filter-tabs"><button class="f-tab active" onclick="filterAlbums('all',this)">Barchasi</button><button class="f-tab" onclick="filterAlbums('yearly',this)">Yil xulosasi</button><button class="f-tab" onclick="filterAlbums('story',this)">Ertak</button><button class="f-tab" onclick="filterAlbums('travel',this)">Sayohat</button></div>
+      <div class="albums-grid" id="albums-grid"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="app-settings" class="main-content" style="display:none">
+    <div class="page-header fade-in"><div><div class="page-h1">⚙️ Sozlamalar</div></div></div>
+    <div class="settings-wrap fade-in">
+      <div class="settings-sec">
+        <div class="settings-sec-t">HISOB</div>
+        <div class="settings-row"><div><div style="font-size:14px" id="set-name-show">Aziz Karimov</div><div style="font-size:12px;color:var(--muted)" id="set-email-show">aziz@gmail.com</div></div><button class="btn-ghost">Tahrirlash</button></div>
+        <div class="settings-row"><div><div style="font-size:14px">Obuna rejasi</div><div style="font-size:12px;color:var(--muted)">Pro · Yillik · $29.99/yil</div></div><span style="font-size:12px;padding:4px 12px;border-radius:100px;background:rgba(201,169,110,.12);color:var(--gold)">Faol</span></div>
+      </div>
+      <div class="settings-sec">
+        <div class="settings-sec-t">XAVFSIZLIK</div>
+        <div class="settings-row"><div><div style="font-size:14px">🔐 PDF shifrlash</div><div style="font-size:12px;color:var(--sage)">AES-256-GCM · Har doim yoqiq</div></div><span style="font-size:12px;color:var(--sage)">✓ Faol</span></div>
+        <div class="settings-row"><div><div style="font-size:14px">🚫 Rasm saqlash</div><div style="font-size:12px;color:var(--sage)">Rasmlar serverda saqlanmaydi · Har doim yoqiq</div></div><span style="font-size:12px;color:var(--sage)">✓ Faol</span></div>
+        <div class="settings-row"><div><div style="font-size:14px">⏱ PDF avtomatik o'chirish</div><div style="font-size:12px;color:var(--muted)">Yaratilganidan 24 soat keyin</div></div><button class="toggle on" onclick="return false"></button></div>
+      </div>
+      <div class="settings-sec">
+        <div class="settings-sec-t">ULANGAN MANBALAR</div>
+        <div class="settings-row"><div><div style="font-size:14px"><span class="conn-dot"></span>Google Photos</div><div style="font-size:12px;color:var(--muted)">4,821 ta rasm ulangan</div></div><button style="padding:8px 16px;border-radius:100px;background:rgba(201,117,110,.1);color:var(--rose);border:1px solid rgba(201,117,110,.2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Uzish</button></div>
+      </div>
+      <div class="settings-sec">
+        <div class="settings-sec-t">BILDIRISHNOMALAR</div>
+        <div class="settings-row"><div style="font-size:14px">Albom tayyor bo'lganda</div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div style="font-size:14px">Yillik xulosa eslatmasi</div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div style="font-size:14px">Marketing xabarlari</div><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+      <button class="btn-outline" onclick="handleLogout()" style="padding:12px 28px;color:var(--rose);border-color:rgba(201,117,110,.2)">Chiqish</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PAYWALL MODAL -->
+<div class="paywall-overlay" id="paywall-modal">
+  <div class="paywall-card">
+    <span class="paywall-icon" id="pw-icon">📥</span>
+    <div class="paywall-title" id="pw-title">PDF yuklab olish uchun obuna kerak</div>
+    <p class="paywall-sub" id="pw-sub">Albomingiz tayyor va shifrlangan holda saqlanmoqda. Yuklab olish uchun obunani tanlang. Istalgan vaqt bekor qilishingiz mumkin.</p>
+    <div class="paywall-plans">
+      <div class="paywall-plan" onclick="handleSubscribe('monthly')">
+        <div class="pp-top"><span class="pp-name">Oylik</span><span class="pp-price">$4.99<span style="font-size:13px;font-weight:400;color:var(--muted)">/oy</span></span></div>
+        <div class="pp-desc">3 albom/oy · AI tahrirlash (3 prompt/albom) · 48 soat saqlash</div>
+      </div>
+      <div class="paywall-plan best" onclick="handleSubscribe('yearly')">
+        <div class="pp-top"><span class="pp-name">Yillik <span class="pp-badge">Eng yaxshi</span></span><span class="pp-price">$34.99<span style="font-size:13px;font-weight:400;color:var(--muted)">/yil</span></span></div>
+        <div class="pp-desc">Cheksiz albomlar · Ertak-Albom · AI tahrirlash · 6 til · Statistika</div>
+      </div>
+    </div>
+    <button class="btn-ghost" onclick="closePaywall()" style="font-size:13px">Keyinroq ←</button>
+  </div>
+</div>
+<!-- CAPTURE WARNING -->
+<div class="capture-warn" id="capture-warn">🚫 Ekran tasvirga olish bloklangan</div>
+
+<script>
+// ── STATE ──
+const S={
+  userName:'',userEmail:'',albums:[],selectedType:'',editorType:'album',
+  hasGenerated:false,   // birinchi bepul generatsiya ishlatildimi
+  isSubscribed:false,   // obuna bormi
+  plan:null,            // 'monthly' | 'yearly'
+  freeEditUsed:false,   // bepul 1 ta AI edit ishlatildimi
+  editCount:0,          // joriy albomda AI edit soni (monthly: max 5)
+  currentAlbumEdits:0   // joriy albom session edit hisoblagi
+};
+
+// ── NAVIGATION ──
+function goTo(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showApp(v){
+  document.querySelectorAll('.s-item').forEach(el=>el.classList.remove('active'));
+  const idx={dashboard:0,create:1,story:2,albums:3,settings:4};
+  const items=document.querySelectorAll('.s-item');
+  if(idx[v]!==undefined)items[idx[v]].classList.add('active');
+  ['dashboard','create','story','editor','albums','settings'].forEach(x=>{
+    const el=document.getElementById('app-'+x);
+    if(el)el.style.display=x===v?'':'none';
+  });
+  if(v==='albums')renderAlbums('all');
+  if(v==='create')resetCreate();
+  if(v==='story')resetStory();
+}
+
+// ── LANDING MOSAIC ──
+(()=>{
+  const colors=['#c9a96e','#e8ddd0','#7ea898','#c97b6e','#e8c98a'];
+  const g=document.getElementById('bgMosaic');
+  if(!g)return;
+  for(let i=0;i<30;i++){
+    const d=document.createElement('div');
+    d.className='bg-tile';
+    d.style.cssText=`background:${colors[i%colors.length]};opacity:${.25+Math.random()*.5}`;
+    g.appendChild(d);
+  }
+})();
+
+// ── AUTH ──
+let authMode='login';
+function toggleAuthMode(){
+  authMode=authMode==='login'?'register':'login';
+  const isReg=authMode==='register';
+  document.getElementById('auth-title').textContent=isReg?"Ro'yxatdan o'ting":'Xush kelibsiz';
+  document.getElementById('auth-sub').textContent=isReg?'Bepul hisob yarating':'Xotiralaringizni jonlantiring';
+  document.getElementById('auth-btn-text').textContent=isReg?"Ro'yxatdan o'tish":'Kirish';
+  document.getElementById('auth-toggle').innerHTML=isReg?'Hisobingiz bormi? <a onclick="toggleAuthMode()">Kiring</a>':"Hisobingiz yo'qmi? <a onclick=\"toggleAuthMode()\">Ro'yxatdan o'ting</a>";
+  document.getElementById('inp-name').style.display=isReg?'block':'none';
+}
+function handleGoogleLogin(){S.userName='Aziz Karimov';S.userEmail='aziz@gmail.com';updateUserUI();goTo('connect');}
+function handleEmailLogin(){
+  const email=document.getElementById('inp-email').value;
+  const pass=document.getElementById('inp-pass').value;
+  const name=document.getElementById('inp-name').value;
+  document.querySelectorAll('.err-msg').forEach(e=>e.classList.remove('show'));
+  document.querySelectorAll('.inp').forEach(i=>i.classList.remove('inp-err'));
+  let ok=true;
+  if(!email.includes('@')){document.getElementById('err-email').classList.add('show');document.getElementById('inp-email').classList.add('inp-err');ok=false;}
+  if(pass.length<6){document.getElementById('err-pass').classList.add('show');document.getElementById('inp-pass').classList.add('inp-err');ok=false;}
+  if(!ok)return;
+  S.userName=authMode==='register'&&name?name:email.split('@')[0];
+  S.userName=S.userName[0].toUpperCase()+S.userName.slice(1);
+  S.userEmail=email;
+  updateUserUI();goTo('connect');
+}
+function updateUserUI(){
+  const first=S.userName.split(' ')[0];
+  document.getElementById('greet-name').textContent=first+'!';
+  document.getElementById('user-name-s').textContent=first;
+  document.getElementById('user-av').textContent=first[0];
+  document.getElementById('set-name-show').textContent=S.userName;
+  document.getElementById('set-email-show').textContent=S.userEmail;
+}
+
+// ── CONNECT & ANALYZING ──
+function handleConnect(){goTo('analyzing');startAnalyzing();}
+function startAnalyzing(){
+  const bar=document.getElementById('prog-bar'),lbl=document.getElementById('prog-label');
+  const steps=['an-s1','an-s2','an-s3','an-s4','an-s5'];
+  let pct=0,si=0;
+  const iv=setInterval(()=>{
+    pct=Math.min(pct+2+Math.random()*3,100);
+    bar.style.width=pct+'%';
+    lbl.textContent=Math.round(pct/100*4821).toLocaleString()+' / 4,821 rasm';
+    const ns=Math.floor(pct/20);
+    if(ns>si&&si<steps.length){
+      if(si>0){const prev=document.getElementById(steps[si-1]);prev.classList.remove('active');prev.classList.add('done');}
+      document.getElementById(steps[si]).classList.add('active');si=ns;
+    }
+    if(pct>=100){
+      clearInterval(iv);
+      steps.forEach(s=>{const el=document.getElementById(s);el.classList.add('done');el.classList.remove('active');});
+      setTimeout(()=>{goTo('dashboard');buildCharts();},700);
+    }
+  },80);
+}
+
+// ── PAYWALL & SUBSCRIPTION ──
+function showPaywall(reason){
+  const modal=document.getElementById('paywall-modal');
+  const icon=document.getElementById('pw-icon');
+  const title=document.getElementById('pw-title');
+  const sub=document.getElementById('pw-sub');
+  if(reason==='download'){
+    icon.textContent='📥';
+    title.textContent='PDF yuklab olish uchun obuna kerak';
+    sub.textContent='Albomingiz tayyor va AES-256-GCM bilan shifrlangan holda saqlanmoqda. Yuklab olish uchun oylik yoki yillik obunani tanlang.';
+  } else if(reason==='generate'){
+    icon.textContent='✨';
+    title.textContent='Yangi albom yaratish uchun obuna kerak';
+    sub.textContent="Birinchi bepul generatsiyangizdan foydalandingiz. Cheksiz albomlar yaratish uchun obunani tanlang.";
+  } else if(reason==='story'){
+    icon.textContent='📖';
+    title.textContent='Ertak-Albom faqat Yillik tarif uchun';
+    sub.textContent="Ertak-Albom funksiyasi faqat Yillik tarifda mavjud. Hozir Yillik tarifga o'ting va yiliga $29.99 ga cheksiz foydalaning.";
+  }
+  modal.classList.add('show');
+}
+function closePaywall(){document.getElementById('paywall-modal').classList.remove('show');}
+function handleSubscribe(plan){
+  S.isSubscribed=true;S.plan=plan;
+  document.getElementById('paywall-modal').classList.remove('show');
+  const msg=plan==='yearly'?"✅ Yillik tarifga o'tdingiz! Barcha funksiyalar ochiq.":"✅ Oylik tarifga o'tdingiz!";
+  showToast(msg);
+}
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1410;border:1px solid rgba(126,168,152,.3);color:var(--sage);padding:12px 24px;border-radius:100px;font-size:13px;z-index:99997;transition:opacity .5s';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';setTimeout(()=>t.style.opacity='0',3000);
+}
+function checkAndCreate(){
+  if(S.hasGenerated&&!S.isSubscribed){showPaywall('generate');return;}
+  if(S.isSubscribed&&S.plan==='monthly'&&S.selectedType==='story'){showPaywall('story');return;}
+  crStep(3);
+}
+function checkAndCreateStory(){
+  if(!S.isSubscribed){showPaywall(S.hasGenerated ? 'generate' : 'story');return;}
+  if(S.plan==='monthly'){showPaywall('story');return;}
+  stStep(3);
+}
+
+// ── ANTI-SCREENSHOT ──
+(()=>{
+  // Keyboard shortcuts block
+  document.addEventListener('keydown', e=>{
+    const blocked=(e.key==='PrintScreen')||
+      (e.ctrlKey&&['p','s','u','a'].includes(e.key.toLowerCase()))||
+      (e.metaKey&&['p','s'].includes(e.key.toLowerCase()))||
+      e.key==='F12';
+    if(blocked){e.preventDefault();showCaptureWarn();}
+  });
+  // Right click block
+  document.addEventListener('contextmenu', e=>e.preventDefault());
+  // Screen Capture API block
+  if(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia){
+    const orig=navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getDisplayMedia=()=>{showCaptureWarn();return Promise.reject(new Error('Blocked'));};
+  }
+  // Drag block
+  document.addEventListener('dragstart', e=>e.preventDefault());
+})();
+function showCaptureWarn(){
+  const w=document.getElementById('capture-warn');
+  w.classList.add('show');
+  setTimeout(()=>w.classList.remove('show'),3000);
+}
+
+
+// ── CHARTS ──
+const YD=[{y:'2019',n:287},{y:'2020',n:412},{y:'2021',n:534},{y:'2022',n:698},{y:'2023',n:756},{y:'2024',n:780}];
+const SD=[{e:'❄️',l:'Qish',p:18},{e:'🌸',l:'Bahor',p:22},{e:'☀️',l:'Yoz',p:42},{e:'🍂',l:'Kuz',p:18}];
+function buildCharts(){
+  const max=Math.max(...YD.map(d=>d.n));
+  const cb=document.getElementById('year-chart'),cl=document.getElementById('year-labels');
+  if(!cb)return;
+  cb.innerHTML='';cl.innerHTML='';
+  YD.forEach((d,i)=>{
+    const h=Math.round(d.n/max*100);
+    cb.innerHTML+=`<div class="c-bar${i===YD.length-1?' active':''}" style="height:${h}%" onclick="highlightYear(${i})"><div class="c-bar-tip">${d.y}: ${d.n} rasm</div></div>`;
+    cl.innerHTML+=`<div class="c-label">${d.y}</div>`;
+  });
+  const sc=document.getElementById('season-chart');if(!sc)return;sc.innerHTML='';
+  SD.forEach(d=>sc.innerHTML+=`<div class="s-bar-wrap"><div class="s-bar-bg" style="height:80px"><div class="s-bar-fill" style="height:0%" data-h="${d.p}%"></div></div><div class="s-bar-pct">${d.p}%</div><div class="s-bar-lbl">${d.e} ${d.l}</div></div>`);
+  setTimeout(()=>document.querySelectorAll('.s-bar-fill').forEach(el=>el.style.height=el.dataset.h),100);
+}
+function highlightYear(i){document.querySelectorAll('.c-bar').forEach((b,j)=>b.classList.toggle('active',j===i));}
+
+// ── CREATE ──
+function selectType(el,type){document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');S.selectedType=type;document.getElementById('cr-next1').disabled=false;const names={yearly:'2024 Yil Xulosasi',travel:'Sayohat Albomi',event:'Bayram Albomi',custom:'Maxsus Albom'};document.getElementById('cr-album-name').value=names[type]||'';}
+function crStep(n){[1,2,3].forEach(i=>document.getElementById('cr-step'+i).style.display=n===i?'':'none');if(n===3)startCrProcessing();}
+function startCrProcessing(){
+  document.getElementById('cr-processing').style.display='';document.getElementById('cr-done').style.display='none';
+  const bar=document.getElementById('cr-prog');let p=0;
+  const iv=setInterval(()=>{p=Math.min(p+3+Math.random()*4,100);bar.style.width=p+'%';if(p>=100){clearInterval(iv);setTimeout(showCrDone,400);}},100);
+}
+function showCrDone(){
+  const name=document.getElementById('cr-album-name').value||'Mening Albomim';
+  const count=document.getElementById('cr-count-label').textContent;
+  document.getElementById('done-title-t').textContent=name;
+  document.getElementById('done-count').textContent=count;
+  document.getElementById('done-meta-t').textContent=count+' rasm · PDF';
+  const icons={yearly:'🌟',travel:'✈️',event:'🎉',custom:'🎨'};
+  S.albums.unshift({id:Date.now(),title:name,type:S.selectedType||'yearly',count,date:'Bugun',icon:icons[S.selectedType]||'🌟'});
+  S.hasGenerated=true;
+  updateAlbumCount();
+  document.getElementById('cr-processing').style.display='none';document.getElementById('cr-done').style.display='';
+  startTimer('done-timer');
+}
+function resetCreate(){document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('selected'));document.getElementById('cr-next1').disabled=true;S.selectedType='';crStep(1);}
+
+// ── STORY ──
+function stStep(n){
+  [1,2,3].forEach(i=>document.getElementById('st-step'+i).style.display=n===i?'':'none');
+  if(n===3){const nm=document.getElementById('st-name').value||'Layla';document.getElementById('st-name-show').textContent=nm;startStProcessing();}
+}
+function startStProcessing(){
+  document.getElementById('st-processing').style.display='';document.getElementById('st-done').style.display='none';
+  const bar=document.getElementById('st-prog'),steps=['st-s1','st-s2','st-s3','st-s4'];
+  let p=0,si=0;
+  const iv=setInterval(()=>{
+    p=Math.min(p+2+Math.random()*3,100);bar.style.width=p+'%';
+    const ns=Math.floor(p/25);
+    if(ns>si&&si<steps.length){if(si>0){const prev=document.getElementById(steps[si-1]);prev.classList.remove('active');prev.classList.add('done');}document.getElementById(steps[si]).classList.add('active');si=ns;}
+    if(p>=100){clearInterval(iv);steps.forEach(s=>{const el=document.getElementById(s);el.classList.add('done');el.classList.remove('active');});setTimeout(showStDone,400);}
+  },100);
+}
+function showStDone(){
+  const nm=document.getElementById('st-name').value||'Layla';
+  const cnt=document.getElementById('st-count-lbl').textContent;
+  document.getElementById('st-done-title').textContent=nm+' — Hayot Ertagi tayyor!';
+  document.getElementById('st-done-count').textContent=cnt;
+  document.getElementById('st-done-name').textContent=nm;
+  document.getElementById('st-done-meta-t').textContent=nm+' — Hayot Ertagi';
+  S.albums.unshift({id:Date.now(),title:nm+' — Hayot Ertagi',type:'story',count:cnt,date:'Bugun',icon:'📖'});
+  updateAlbumCount();document.getElementById('st-processing').style.display='none';document.getElementById('st-done').style.display='';
+}
+function resetStory(){stStep(1);}
+
+// ── EDITOR ──
+const PHOTO_EMOJIS=['🌅','🏖️','🌿','👨‍👩‍👧','🎂','🌸','🏔️','🎉','🌊','👶','🦋','🌺','🍂','❄️','🌻','🎭','🦁','🎵','🌙','🏡','🎨','🚂','🌈','🦜','🎠','🌾','🏊','🎪','🌴','🎋','🍁','🎏','🌟','🦚','🎑','🏯','🌃','🎆'];
+const STORY_TEXTS={
+  0:["Bir bor edi, bir yo'q edi... Laylo dunyoga kelgan kunning ertalabi butun tabiat kulib turardi.","Ona qo'llari ilk bor uni ko'targanida, vaqt to'xtab qolgandek tuyuldi."],
+  1:["Laylo endi emaklay boshladi. Har qadam yangi kashfiyot, har narsa qiziqarli sirli olam.","Kulgisi uyning har burchagiga tarqalardi — bu kulgu hammaning ko'nglini ko'tardi."],
+  2:["Birinchi qadamlar! Qo\'llari uzatilgan, ko\'zlari g\'ururga to\'lgan.","Yiqilsa ham — yana turdi. Bu jasorat uning ichida har doim bor edi."],
+  3:["Maktab! Yangi do'stlar, yangi olam. Laylo hammaga o'z nurini ulashdi.","Daftarlar, ruchkalar, va cheksiz savol — bu uning olamini boyitdi."],
+};
+function openEditor(type){
+  S.editorType=type;
+  S.currentAlbumEdits=0;
+  showApp('editor');
+  const title=type==='story'?'Ertak-Albom tahrirlash':'Albom tahrirlash';
+  document.getElementById('editor-title').textContent=title;
+  const content=document.getElementById('editor-content');
+  const qp=document.getElementById('quick-prompts');
+  if(type==='story'){
+    document.getElementById('editor-preview-label').textContent='ERTAK-ALBOM — RASMLAR VA MATNLAR';
+    let html='';
+    for(let i=0;i<4;i++){
+      const eras=['🍼 Chaqaloq davri','🚼 Emaklovchi davri','👶 Birinchi qadamlar','📚 Maktab davri'];
+      html+=`<div class="story-slot" id="ss${i}" onclick="toggleStorySelect(${i})">
+        <div class="story-img" style="background:${['linear-gradient(135deg,#c9a96e,#c97b6e)','linear-gradient(135deg,#7ea898,#4a7a6a)','linear-gradient(135deg,#c97b6e,#a05540)','linear-gradient(135deg,#c9a96e,#7ea898)'][i]}">${PHOTO_EMOJIS[i*3]}</div>
+        <div class="story-text-area">
+          <div class="era">${eras[i]}</div>
+          <div id="st-text-${i}">${STORY_TEXTS[i][0]}</div>
+          <textarea class="edit-text" id="st-ta-${i}" rows="4">${STORY_TEXTS[i][0]}</textarea>
+        </div>
+      </div>`;
+    }
+    content.innerHTML=html;
+    qp.innerHTML=['Bu qismni she\'riyroq qiling','Ertakni qisqartiring','Ko\'proq tavsif qo\'shing','Boshqa davr qo\'shing'].map(p=>`<button class="quick-prompt" onclick="useQuickPrompt('${p}')">${p}</button>`).join('');
+  } else {
+    document.getElementById('editor-preview-label').textContent=`ALBOM — ${S.albums[0]?.count||40} TA RASM`;
+    let html='<div class="photo-grid">';
+    for(let i=0;i<9;i++) html+=`<div class="photo-slot" id="ps${i}" style="background:${['linear-gradient(135deg,#c9a96e44,#c97b6e33)','linear-gradient(135deg,#7ea89844,#4a7a6a33)','linear-gradient(135deg,#c97b6e44,#a0554033)','linear-gradient(135deg,#c9a96e33,#7ea89833)','linear-gradient(135deg,#e8c98a33,#c9a96e44)','linear-gradient(135deg,#4a7a6a33,#7ea89844)','linear-gradient(135deg,#a0554033,#c97b6e44)','linear-gradient(135deg,#7ea89833,#c9a96e33)','linear-gradient(135deg,#c9a96e44,#e8c98a33)'][i]}" onclick="togglePhoto(${i})"><span style="font-size:28px">${PHOTO_EMOJIS[i]}</span><button class="remove-btn" onclick="removePhoto(event,${i})">✕</button></div>`;
+    html+='</div>';
+    content.innerHTML=html;
+    qp.innerHTML=['Bu rasmni olib tashlang','Eng yaxshi 5 rasmni qoldiring','Dekabr rasmlarini qo\'shing','Albomni qayta tartiblashtiring'].map(p=>`<button class="quick-prompt" onclick="useQuickPrompt('${p}')">${p}</button>`).join('');
+  }
+  // Reset chat
+  document.getElementById('ai-messages').innerHTML='<div class="ai-msg bot">Salom! Albomingizni qanday tahrirlamoqchisiz? Matn yozing yoki quyidagi tezkor buyruqlardan birini tanlang.</div>';
+}
+function togglePhoto(i){document.getElementById('ps'+i)?.classList.toggle('selected');}
+function removePhoto(e,i){e.stopPropagation();const el=document.getElementById('ps'+i);if(el){el.style.opacity='0.3';el.style.pointerEvents='none';addAiMsg('bot',`${i+1}-rasm albomdan olib tashlandi ✓`);}}
+function toggleStorySelect(i){
+  const el=document.getElementById('ss'+i);
+  if(!el)return;
+  el.classList.toggle('selected');
+  const ta=document.getElementById('st-ta-'+i);
+  const txt=document.getElementById('st-text-'+i);
+  if(el.classList.contains('selected')){ta.style.display='block';txt.style.display='none';}
+  else{ta.style.display='none';txt.style.display='block';txt.textContent=ta.value;}
+}
+function useQuickPrompt(p){document.getElementById('ai-prompt').value=p;sendAiPrompt();}
+function sendAiPrompt(){
+  const inp=document.getElementById('ai-prompt');
+  const prompt=inp.value.trim();if(!prompt)return;
+  // Limit check
+  if(!S.isSubscribed){
+    if(S.freeEditUsed){showPaywall('edit');return;}
+    S.freeEditUsed=true;
+  } else if(S.plan==='monthly'){
+    if(S.currentAlbumEdits>=3){
+      addAiMsg('bot',"Oylik tarifda albom boshiga 3 ta AI tahrirlash mumkin. Cheksiz uchun Yillik tarifga o'ting.");
+      setTimeout(()=>showPaywall('edit_limit'),1000);
+      return;
+    }
+    S.currentAlbumEdits++;
+    updateEditCounter();
+  }
+  inp.value='';
+  addAiMsg('user',prompt);
+  addAiMsg('bot','...',true);
+  setTimeout(()=>{
+    document.querySelector('.ai-msg.thinking')?.remove();
+    const r=generateAiResponse(prompt);
+    addAiMsg('bot',r);
+    applyEditorChange(prompt);
+    if(S.isSubscribed&&S.plan==='monthly'){
+      const left=5-S.currentAlbumEdits;
+      if(left<=1) addAiMsg('bot',left===0?"Oylik limit tugadi.":"Oylik limitda "+left+" ta prompt qoldi. Cheksiz uchun Yillik tarifga o'ting.");
+    }
+  },1800);
+}
+function updateEditCounter(){
+  let ctr=document.getElementById('edit-counter');
+  if(!ctr){
+    ctr=document.createElement('div');
+    ctr.id='edit-counter';
+    ctr.style.cssText='font-size:11px;color:rgba(245,240,232,.4);padding:4px 20px;text-align:right;';
+    const header=document.querySelector('.editor-ai-header');
+    if(header)header.appendChild(ctr);
+  }
+  ctr.textContent='AI tahrirlash: '+S.currentAlbumEdits+'/3 (Oylik)';
+}
+function addAiMsg(type,text,thinking=false){
+  const el=document.getElementById('ai-messages');
+  const div=document.createElement('div');
+  div.className='ai-msg '+type+(thinking?' thinking':'');
+  div.textContent=thinking?'🤖 AI ishlayapti...' :text;
+  el.appendChild(div);el.scrollTop=el.scrollHeight;
+}
+function generateAiResponse(p){
+  const lp=p.toLowerCase();
+  if(lp.includes('olib tashlang')||lp.includes('o\'chirish'))return "Belgilangan rasm albomdan olib tashlandi. Agar noto'g'ri bo'lsa, qaytarish uchun 'Bekor qilish' yozing.";
+  if(lp.includes('she\'riy')||lp.includes('romantik'))return "Ertak matnlari she'riy uslubda qayta yozildi. Har qism endi she'riy tasvirlar va metaforalar bilan boyitilgan.";
+  if(lp.includes('qisqartir'))return "Ertak matnlari qisqartirildi — har qism uchun eng muhim jumlalar qoldirildi.";
+  if(lp.includes('tavsif')||lp.includes('ko\'proq'))return "Har qism uchun qo\'shimcha tavsif va his-tuyg\'u tasvirlari qo\'shildi.";
+  if(lp.includes('tartiblashtir'))return "Rasmlar sana bo'yicha qayta tartiblantirildi — eskidan yangiligi bo'yicha.";
+  if(lp.includes('dekabr')||lp.includes('yanvar'))return "So'ralgan oydan 6 ta qo'shimcha rasm topildi va albomga qo'shildi.";
+  if(lp.includes('5 rasm')||lp.includes('yaxshi'))return "AI barcha rasmlarni qayta baholadi va eng yuqori skorli 5 ta rasm qoldirildi.";
+  return "O'zgartirish qo'llanildi ✓ Albom yangilandi. Qo'shimcha o'zgartirishlar kerak bo'lsa ayting.";
+}
+function applyEditorChange(p){
+  const lp=p.toLowerCase();
+  if(S.editorType==='story'&&(lp.includes('she\'riy')||lp.includes('romantik'))){
+    document.querySelectorAll('.story-text-area [id^="st-text-"]').forEach((el,i)=>{
+      const poems=["Laylo — tabiatning eng nozik gulbargidek, tug'ildi dunyo bag'riga.","Emaklab kashf etdi olam sir-asrorini, kulgisi esa quyosh nuridan yorqinroq edi.","Birinchi qadamda butun dunyo seni kutardi, jasorating ko'kka yetardi.","Maktab eshiklarida yangi olam seni chaqirdi, har harfda sening sirlaring yashirindi."];
+      el.textContent=poems[i]||el.textContent;
+    });
+  }
+}
+function saveEdits(){
+  const btn=event.target;btn.textContent='💾 Saqlanmoqda...';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='✅ Saqlandi!';setTimeout(()=>{btn.textContent='💾 Saqlash';btn.disabled=false;},2000);},1500);
+}
+
+// ── ALBUMS ──
+function updateAlbumCount(){
+  const n=S.albums.length;
+  document.getElementById('album-count-kpi').textContent=n;
+  document.getElementById('alb-count-sub').textContent='Jami '+n+' ta albom';
+  renderDashAlbums();
+}
+function renderDashAlbums(){
+  const c=document.getElementById('dash-albums');
+  let h=S.albums.slice(0,2).map(a=>`<div class="alb-mini" onclick="showApp('albums')"><div class="alb-thumb" style="background:linear-gradient(135deg,var(--gold),var(--rose))">${a.icon}</div><div><div style="font-size:13px;font-weight:600">${a.title}</div><div style="font-size:11px;color:var(--muted)">${a.count} rasm · ${a.date}</div></div></div>`).join('');
+  h+=`<div class="alb-mini add" onclick="showApp('create')"><span style="font-size:22px;margin-right:8px">+</span>Yangi albom</div>`;
+  c.innerHTML=h;
+}
+let curFilter='all';
+function filterAlbums(f,btn){curFilter=f;document.querySelectorAll('.f-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderAlbums(f);}
+function renderAlbums(f){
+  const grid=document.getElementById('albums-grid');
+  const filtered=f==='all'?S.albums:S.albums.filter(a=>a.type===f);
+  if(!filtered.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><div style="font-size:48px;margin-bottom:16px">📭</div><div>Albom yo'q</div><button class="btn-gold" onclick="showApp('create')" style="margin-top:20px;padding:12px 28px">Yaratish</button></div>`;
+    return;
+  }
+  const bgs={yearly:'linear-gradient(135deg,#c9a96e,#c97b6e)',story:'linear-gradient(135deg,#7ea898,#4a7a6a)',travel:'linear-gradient(135deg,#c97b6e,#a05540)',event:'linear-gradient(135deg,#c9a96e,#7ea898)',custom:'linear-gradient(135deg,#4a7a6a,#c9a96e)'};
+  grid.innerHTML=filtered.map((a,idx)=>`
+    <div class="album-card">
+      <div class="album-cover" style="background:${bgs[a.type]||bgs.yearly}">${a.icon}</div>
+      <div class="album-info">
+        <span class="alb-badge ${a.type==='story'?'story':'ready'}">${a.type==='story'?'📖 Ertak':'✨ Albom'} · 🔐 Shifrlangan</span>
+        <div class="t">${a.title}</div>
+        <div class="m">${a.count} rasm · ${a.date}</div>
+        <div class="alb-actions">
+          <button class="alb-btn alb-btn-down" onclick="downloadAlbum(event)">📥 Yuklab olish</button>
+          <button class="alb-btn alb-btn-edit" onclick="openEditor('${a.type==='story'?'story':'album'}')">✏️ AI tahrirlash</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── UTILS ──
+function downloadAlbum(event){
+  if(!S.isSubscribed){
+    showPaywall('download');
+    return;
+  }
+  const btn=event.target;const orig=btn.textContent;btn.textContent='⏳...';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='✅ Yuklab olindi!';setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2000);},1500);
+}
+function startTimer(id){
+  let s=86400;const el=document.getElementById(id);if(!el)return;
+  const iv=setInterval(()=>{s--;if(s<=0){clearInterval(iv);return;}const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;if(el)el.textContent=`⏱ ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')} qoldi`;},1000);
+}
+function togglePill(el){el.classList.toggle('selected');}
+function handleLogout(){S.userName='';S.userEmail='';S.albums=[];goTo('landing');}
+buildCharts();
+</script>
+</body>
+</html>

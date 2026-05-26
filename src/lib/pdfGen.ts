@@ -248,41 +248,64 @@ function layoutClosing(doc: jsPDF, pageW: number, pageH: number, name: string) {
 }
 
 /* ============ STORY LAYOUTS ============ */
-// Chap tomonda full-bleed rasm, o'ng tomonda matn — kitobcha sahifasi
+// Chap — to'liq rasm, o'ng — bob matni. Kitobcha estetikasi.
 function layoutStoryChapter(doc: jsPDF, pageW: number, pageH: number, img: LoadedImage | null, era: string, text: string, chapNum: number) {
   fillRect(doc, 0, 0, pageW, pageH, COL.cream)
 
-  // Left half — illustration
-  const photoW = pageW * 0.52
+  // CHAP — illustratsiya (full-bleed)
+  const photoW = pageW * 0.55
   if (img) drawImageCover(doc, img, 0, 0, photoW, pageH)
   else fillRect(doc, 0, 0, photoW, pageH, [220, 210, 195])
 
-  // Right half — text block on cream
-  const textX = photoW + 16
-  const textW = pageW - photoW - 32
+  // Yumshoq cream gradient o'ng tomonda (kitob tikuvi effekti)
+  for (let i = 0; i < 20; i++) {
+    ;(doc as any).setGState?.(new (doc as any).GState({ opacity: 0.06 - i * 0.003 }))
+    fillRect(doc, photoW + i * 0.3, 0, 0.4, pageH, COL.ink)
+  }
+  ;(doc as any).setGState?.(new (doc as any).GState({ opacity: 1 }))
 
-  // Chapter number — large italic
-  setText(doc, COL.gold, 36, 'italic')
-  doc.text(String(chapNum).padStart(2, '0'), textX, 38)
+  // O'NG — matn bloki
+  const textX = photoW + 18
+  const textW = pageW - photoW - 36
 
-  // Decorative line
+  // Yuqorida dekorativ ornament
   doc.setDrawColor(...COL.gold)
-  doc.setLineWidth(0.5)
-  doc.line(textX, 44, textX + 28, 44)
+  doc.setLineWidth(0.4)
+  doc.line(textX, 24, textX + 30, 24)
+  doc.setFillColor(...COL.gold)
+  doc.circle(textX + 35, 24, 0.7, 'F')
+  doc.line(textX + 40, 24, textX + 70, 24)
 
-  // Chapter title (era)
+  // Bob raqami — katta serif
+  setText(doc, COL.gold, 48, 'italic')
+  doc.text(String(chapNum).padStart(2, '0'), textX, 50)
+
+  // Bob sarlavhasi (era)
   setText(doc, COL.goldDeep, 9)
-  doc.text((era || `Chapter ${chapNum}`).toUpperCase(), textX, 56)
+  const eraText = (era || `Chapter ${chapNum}`).toUpperCase()
+  doc.text(eraText, textX, 62)
 
-  // Narrative text — italic serif
-  setText(doc, COL.ink, 13, 'italic')
-  const lines = doc.splitTextToSize(text || '', textW)
-  // Center vertically
-  const startY = Math.max(80, (pageH - lines.length * 7) / 2)
-  doc.text(lines, textX, startY, { maxWidth: textW, lineHeightFactor: 1.5 })
+  // Yana bir dekorativ chiziq
+  doc.setDrawColor(...COL.gold)
+  doc.setLineWidth(0.4)
+  doc.line(textX, 66, textX + 18, 66)
 
-  // Footer page number
-  setText(doc, COL.mute, 7, 'italic')
+  // Hikoya matni — serif italic, drop cap
+  const narrative = text && text.length > 0 ? text : '~ silence ~'
+  setText(doc, COL.ink, 14, 'italic')
+  const lines = doc.splitTextToSize(narrative, textW)
+
+  // Vertikal markazlash (matn 100mm dan boshlanadi)
+  const startY = Math.max(90, (pageH - lines.length * 7) / 2)
+  doc.text(lines, textX, startY, { maxWidth: textW, lineHeightFactor: 1.6 })
+
+  // Pastki ornament
+  doc.setDrawColor(...COL.gold)
+  doc.setLineWidth(0.3)
+  doc.line(textX + textW / 2 - 12, pageH - 22, textX + textW / 2 + 12, pageH - 22)
+
+  // Sahifa raqami — italic
+  setText(doc, COL.mute, 8, 'italic')
   doc.text(`~ ${chapNum} ~`, textX + textW / 2, pageH - 14, { align: 'center' })
 }
 

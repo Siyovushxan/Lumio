@@ -157,10 +157,10 @@ export async function generateStoryFromPhotos(opts: {
 
   const langName = opts.lang === 'uz' ? "O'zbek" : opts.lang === 'ru' ? 'Russian' : 'English'
   const styleHints: Record<string, string> = {
-    children: "A magical children's fairy-tale. Talking animals, clouds, dreams. Soft and wondrous.",
-    romantic: 'A tender romantic narrative. Warm and intimate.',
-    poetic: 'A poetic, dreamlike narrative with rich metaphors.',
-    bio: 'A biographical narrative — warm, grounded, true to life.',
+    children: "magical children's fairy-tale — turn people into heroes, objects into magical artifacts. Talking clouds, dragons made of fog, dreams given shape. Wonder above realism.",
+    romantic: 'tender romantic vignette — slow time, single gaze, soft hearts. Make readers feel held.',
+    poetic: 'poetic prose — rich metaphors, sensory imagery, dreamlike rhythm. Like a half-remembered song.',
+    bio: 'warm biographical fragment — grounded but golden, finding meaning in small details.',
   }
   const styleHint = styleHints[opts.style] || styleHints.children
 
@@ -177,7 +177,21 @@ export async function generateStoryFromPhotos(opts: {
     }
 
     const imageDataUrl = `data:${img.mimeType};base64,${img.data}`
-    const promptText = `You are a storyteller writing the album "${opts.title}". Style: ${styleHint} Language: ${langName}. Look at the photo carefully. Invent a short fairy-tale chapter (2-3 sentences, max 280 chars) where the photo IS the illustration — describe what is happening as a scene from your tale (e.g. "the boy soared above the clouds in a tiny airplane made of dreams"). Return ONLY valid JSON: {"era":"3-5 word chapter title","text":"the narrative"}.`
+    const promptText = `You are writing chapter ${i + 1} of "${opts.title}" — a ${styleHint}
+
+LANGUAGE: ${langName}. Write the chapter IN ${langName} only.
+
+LOOK AT THE PHOTO. Identify the subject (person, place, mood).
+
+Now INVENT a fairy-tale moment where this photo is the illustration. RULES:
+- DO NOT describe the photo literally ("a child stands in snow")
+- DO transform reality into wonder: the child becomes a hero, the snow becomes silver dust, the trees whisper old secrets
+- Example transformation: a photo of someone in a foggy field → "Nilufar walked into the cloud-river that morning, and the mist parted to show her a path made of moonlight."
+- 2-3 sentences, max 280 characters
+- Warm, vivid, dreamlike
+
+Return ONLY this JSON (no markdown, no explanation):
+{"era":"3-5 word evocative chapter title","text":"the fairy-tale text"}`
 
     try {
       const raw = await tryModels(VISION_MODELS, VISION_CACHE, (model) =>

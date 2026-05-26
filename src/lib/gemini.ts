@@ -1,94 +1,88 @@
-/* Google Gemini API — avtomatik model aniqlash bilan */
+/* AI provider — Groq (OpenAI-compatible).
+   Fayl tarixiy nomi gemini.ts deb qoldi. Eski export'lar saqlangan. */
 
-const API = 'https://generativelanguage.googleapis.com/v1beta'
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const MODEL_CACHE_KEY = 'lumio_gemini_model'
+import { getAccessToken } from './googlePhotos'
 
-interface GeminiResponse {
-  candidates?: { content: { parts: { text: string }[] } }[]
-  error?: { message: string; status?: string }
+const GROQ_API = 'https://api.groq.com/openai/v1/chat/completions'
+const GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY
+
+const TEXT_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it']
+const VISION_MODELS = [
+  'meta-llama/llama-4-scout-17b-16e-instruct',
+  'meta-llama/llama-4-maverick-17b-128e-instruct',
+  'llama-3.2-11b-vision-preview',
+]
+const TEXT_CACHE = 'lumio_groq_text_model'
+const VISION_CACHE = 'lumio_groq_vision_model'
+
+interface GroqResponse {
+  choices?: { message: { content: string } }[]
+  error?: { message: string; type?: string; code?: string }
 }
 
-interface ModelInfo {
-  name: string
-  supportedGenerationMethods?: string[]
-}
-
-/** Mavjud modellardan generateContent qo'llab-quvvatlaydiganini topadi */
-async function discoverModel(): Promise<string> {
-  const cached = sessionStorage.getItem(MODEL_CACHE_KEY)
-  if (cached) return cached
+async function callGroq(model: string, messages: any[], opts: { temperature?: number; max_tokens?: number; response_format?: any } = {}): Promise<string> {
+  if (!GROQ_KEY) throw new Error('VITE_GROQ_API_KEY not set')
+  const body: any = {
+    model,
+    messages,
+    temperature: opts.temperature ?? 0.7,
+    max_tokens: opts.max_tokens ?? 600,
+  }
+  if (opts.response_format) body.response_format = opts.response_format
 
   let res: Response
   try {
-    res = await fetch(`${API}/models?key=${API_KEY}`)
+    res = await fetch(GROQ_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${GROQ_KEY}` },
+      body: JSON.stringify(body),
+    })
   } catch (e: any) {
-    // Network/firewall/region blok
-    throw new Error('NETWORK_BLOCKED: ' + (e?.message || 'Failed to reach Gemini API'))
+    throw new Error('NETWORK_BLOCKED: ' + (e?.message || 'Failed to reach Groq'))
   }
-  if (!res.ok) throw new Error(`ListModels HTTP ${res.status}: ${await res.text().catch(() => '')}`)
-  const data = await res.json()
-  const models: ModelInfo[] = data.models || []
-
-  // Prefer modern fast models — sort by name patterns
-  const priority = [
-    /gemini-2\.5-flash/,
-    /gemini-2\.0-flash$/,
-    /gemini-2\.0-flash-001/,
-    /gemini-2\.5-pro/,
-    /gemini-1\.5-flash-002/,
-    /gemini-1\.5-flash$/,
-    /gemini-1\.5-flash-latest/,
-    /gemini-flash-latest/,
-    /gemini-1\.5-pro/,
-  ]
-
-  const supports = (m: ModelInfo) => m.supportedGenerationMethods?.includes('generateContent')
-
-  for (const re of priority) {
-    const found = models.find((m) => re.test(m.name) && supports(m))
-    if (found) {
-      const name = found.name.replace(/^models\//, '')
-      sessionStorage.setItem(MODEL_CACHE_KEY, name)
-      return name
-    }
+  const data: GroqResponse = await res.json()
+  if (!res.ok || data.error) {
+    const msg = data.error?.message || `HTTP ${res.status}`
+    const code = data.error?.code || ''
+    const isModelIssue = code === 'model_not_found' || /not found|decommissioned|does not exist/i.test(msg)
+    throw new Error((isModelIssue ? 'MODEL_NOT_FOUND: ' : '') + msg)
   }
-  // Fallback: any model supporting generateContent
-  const any = models.find(supports)
-  if (any) {
-    const name = any.name.replace(/^models\//, '')
-    sessionStorage.setItem(MODEL_CACHE_KEY, name)
-    return name
-  }
-  throw new Error('No Gemini model supports generateContent for this API key')
+  return data.choices?.[0]?.message?.content?.trim() || ''
 }
 
+async function tryModels(models: string[], cacheKey: string, callFn: (model: string) => Promise<string>): Promise<string> {
+  const cached = sessionStorage.getItem(cacheKey)
+  const order = cached ? [cached, ...models.filter((m) => m !== cached)] : models
+  let lastErr: Error | null = null
+  for (const m of order) {
+    try {
+      const result = await callFn(m)
+      if (result) {
+        sessionStorage.setItem(cacheKey, m)
+        return result
+      }
+    } catch (e: any) {
+      lastErr = e
+      const msg = String(e?.message || '')
+      if (msg.includes('MODEL_NOT_FOUND')) {
+        if (cached === m) sessionStorage.removeItem(cacheKey)
+        continue
+      }
+      throw e
+    }
+  }
+  throw lastErr || new Error('All models failed')
+}
+
+/* ============ TEXT API ============ */
+
 export async function generateText(prompt: string, system?: string): Promise<string> {
-  if (!API_KEY) throw new Error('VITE_GEMINI_API_KEY not set')
-
-  const model = await discoverModel()
-
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
-    generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
-  }
-
-  const res = await fetch(`${API}/models/${model}:generateContent?key=${API_KEY}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-
-  const data: GeminiResponse = await res.json()
-  if (!res.ok || data.error) {
-    // Agar cached model endi ishlamasa — keshni tozalab keyingisida qayta aniqlanadi
-    if (res.status === 404 || res.status === 400) sessionStorage.removeItem(MODEL_CACHE_KEY)
-    throw new Error(data.error?.message || `HTTP ${res.status}`)
-  }
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
-  if (!text) throw new Error('Empty response from Gemini')
-  return text
+  const messages: any[] = []
+  if (system) messages.push({ role: 'system', content: system })
+  messages.push({ role: 'user', content: prompt })
+  return tryModels(TEXT_MODELS, TEXT_CACHE, (model) =>
+    callGroq(model, messages, { temperature: 0.7, max_tokens: 600 })
+  )
 }
 
 export async function generateInsight(stats: {
@@ -121,16 +115,13 @@ export async function generateChapter(opts: {
   return generateText(`Write chapter for ${opts.personName} — ${opts.era}.`, sys)
 }
 
-import { getAccessToken } from './googlePhotos'
+/* ============ VISION ============ */
 
-/** Rasm baseUrl'ini base64'ga aylantiradi (picker yoki local) */
 async function imageToBase64(baseUrl: string, size = 'w800-h800', isLocal = false): Promise<{ data: string; mimeType: string } | null> {
   try {
-    // Local data URL — to'g'ridan-to'g'ri parse qilamiz
     if (isLocal || baseUrl.startsWith('data:')) {
       const m = baseUrl.match(/^data:([^;]+);base64,(.+)$/)
       if (m) return { mimeType: m[1] || 'image/jpeg', data: m[2] }
-      // blob: URL — fetch qilamiz auth'siz
     }
     const url = isLocal || baseUrl.startsWith('blob:') || baseUrl.startsWith('data:') ? baseUrl : `${baseUrl}=${size}`
     const headers: HeadersInit = {}
@@ -155,73 +146,78 @@ async function imageToBase64(baseUrl: string, size = 'w800-h800', isLocal = fals
   }
 }
 
-/** Rasmlardan AI ertak yaratish — Gemini Vision orqali */
 export async function generateStoryFromPhotos(opts: {
   title: string
-  style: string                       // children / romantic / poetic / bio
+  style: string
   lang: 'en' | 'uz' | 'ru'
   photos: { id: string; baseUrl: string; local?: boolean }[]
   onProgress?: (done: number, total: number) => void
 }): Promise<{ chapters: { era: string; text: string; photoId: string }[] }> {
-  if (!API_KEY) throw new Error('VITE_GEMINI_API_KEY not set')
+  if (!GROQ_KEY) throw new Error('VITE_GROQ_API_KEY not set')
 
-  const model = await discoverModel()
   const langName = opts.lang === 'uz' ? "O'zbek" : opts.lang === 'ru' ? 'Russian' : 'English'
-
   const styleHints: Record<string, string> = {
-    children:  'A magical children\'s fairy-tale. Talking animals, clouds, dreams. Soft and wondrous.',
-    romantic:  'A tender romantic narrative. Warm and intimate.',
-    poetic:    'A poetic, dreamlike narrative with rich metaphors.',
-    bio:       'A biographical narrative — warm, grounded, true to life.',
+    children: "A magical children's fairy-tale. Talking animals, clouds, dreams. Soft and wondrous.",
+    romantic: 'A tender romantic narrative. Warm and intimate.',
+    poetic: 'A poetic, dreamlike narrative with rich metaphors.',
+    bio: 'A biographical narrative — warm, grounded, true to life.',
   }
   const styleHint = styleHints[opts.style] || styleHints.children
 
   const chapters: { era: string; text: string; photoId: string }[] = []
-  // Bitta-bittadan Vision so'rovi (token tejash uchun rasm soni cheklangan)
   const photos = opts.photos.slice(0, 12)
 
   for (let i = 0; i < photos.length; i++) {
     const p = photos[i]
     const img = await imageToBase64(p.baseUrl, 'w512-h512', !!p.local)
-    if (!img) { opts.onProgress?.(i + 1, photos.length); continue }
-
-    const sys = `You are a storyteller writing the album "${opts.title}". Style: ${styleHint} Language: ${langName}. For the photo, invent a short fairy-tale chapter (2-3 sentences, max 280 chars). The photo IS an illustration of this chapter — describe what is happening as if the photo is a scene from your tale (e.g. "the boy soared above the clouds in a tiny airplane made of dreams"). Return JSON: {"era":"chapter title (3-5 words)","text":"narrative"} — no markdown, just raw JSON.`
-
-    const body = {
-      contents: [{
-        parts: [
-          { inlineData: { mimeType: img.mimeType, data: img.data } },
-          { text: 'Write the chapter for this photo.' },
-        ],
-      }],
-      systemInstruction: { parts: [{ text: sys }] },
-      generationConfig: { temperature: 0.95, maxOutputTokens: 400, responseMimeType: 'application/json' },
+    if (!img) {
+      chapters.push({ era: `Chapter ${i + 1}`, text: '', photoId: p.id })
+      opts.onProgress?.(i + 1, photos.length)
+      continue
     }
 
+    const imageDataUrl = `data:${img.mimeType};base64,${img.data}`
+    const promptText = `You are a storyteller writing the album "${opts.title}". Style: ${styleHint} Language: ${langName}. Look at the photo carefully. Invent a short fairy-tale chapter (2-3 sentences, max 280 chars) where the photo IS the illustration — describe what is happening as a scene from your tale (e.g. "the boy soared above the clouds in a tiny airplane made of dreams"). Return ONLY valid JSON: {"era":"3-5 word chapter title","text":"the narrative"}.`
+
     try {
-      const res = await fetch(`${API}/models/${model}:generateContent?key=${API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      const data: GeminiResponse = await res.json()
-      if (!res.ok || data.error) throw new Error(data.error?.message || `HTTP ${res.status}`)
-      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || ''
-      // Try parse JSON
+      const raw = await tryModels(VISION_MODELS, VISION_CACHE, (model) =>
+        callGroq(
+          model,
+          [{
+            role: 'user',
+            content: [
+              { type: 'text', text: promptText },
+              { type: 'image_url', image_url: { url: imageDataUrl } },
+            ],
+          }],
+          { temperature: 0.95, max_tokens: 400, response_format: { type: 'json_object' } }
+        )
+      )
+
       let parsed: { era?: string; text?: string } = {}
-      try { parsed = JSON.parse(raw) } catch {
-        // Fallback — extract era/text via regex
-        const eraMatch = raw.match(/"era"\s*:\s*"([^"]+)"/)
-        const textMatch = raw.match(/"text"\s*:\s*"([^"]+)"/)
-        parsed = { era: eraMatch?.[1], text: textMatch?.[1] || raw.slice(0, 280) }
+      try {
+        parsed = JSON.parse(raw)
+      } catch {
+        const jsonMatch = raw.match(/\{[\s\S]*?\}/)
+        if (jsonMatch) {
+          try { parsed = JSON.parse(jsonMatch[0]) } catch { /* fallback below */ }
+        }
+        if (!parsed.text) {
+          const eraMatch = raw.match(/"era"\s*:\s*"([^"]+)"/)
+          const textMatch = raw.match(/"text"\s*:\s*"([^"]+)"/)
+          parsed = {
+            era: eraMatch?.[1],
+            text: textMatch?.[1] || raw.replace(/[{}"`]/g, '').slice(0, 280),
+          }
+        }
       }
       chapters.push({
         era: parsed.era || `Chapter ${i + 1}`,
         text: parsed.text || '',
         photoId: p.id,
       })
-    } catch (e) {
-      console.warn(`Story chapter ${i + 1} failed:`, e)
+    } catch (e: any) {
+      console.warn(`Story chapter ${i + 1} failed:`, e?.message)
       chapters.push({ era: `Chapter ${i + 1}`, text: '', photoId: p.id })
     }
     opts.onProgress?.(i + 1, photos.length)

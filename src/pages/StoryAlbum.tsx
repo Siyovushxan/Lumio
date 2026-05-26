@@ -154,16 +154,12 @@ export default function StoryAlbum() {
     } catch (e: any) {
       const raw = String(e?.message || e)
       let msg: string
-      if (raw.includes('SERVICE_DISABLED') || raw.includes('PERMISSION_DENIED')) {
-        msg = lang === 'uz' ? 'Generative Language API yoqilmagan.' : 'Enable Generative Language API.'
-      } else if (raw.includes('API_KEY')) {
-        msg = lang === 'uz' ? 'API kalit muammosi.' : 'API key issue.'
+      if (raw.includes('VITE_GROQ_API_KEY') || raw.includes('Invalid API Key') || raw.includes('invalid_api_key')) {
+        msg = lang === 'uz' ? "Groq API kalit noto'g'ri." : 'Invalid Groq API key.'
+      } else if (raw.includes('rate_limit') || raw.includes('429')) {
+        msg = lang === 'uz' ? 'Kvota tugadi. Bir oz kutib qayta urinib ko\'ring.' : 'Rate limit reached.'
       } else if (raw.includes('NETWORK_BLOCKED') || raw.includes('Failed to fetch')) {
-        msg = lang === 'uz'
-          ? "Gemini API'ga ulanib bo'lmadi. Tarmoqni tekshiring yoki VPN orqali urinib ko'ring (Gemini ba'zi mintaqalarda bloklangan)."
-          : lang === 'ru'
-          ? 'Не удалось подключиться к Gemini. Проверьте сеть или VPN.'
-          : "Couldn't reach Gemini API. Check network or use VPN (Gemini may be region-blocked)."
+        msg = lang === 'uz' ? 'Tarmoq xato. Internet aloqasini tekshiring.' : 'Network error.'
       } else {
         msg = (lang === 'uz' ? 'Xato: ' : 'Error: ') + raw.slice(0, 200)
       }

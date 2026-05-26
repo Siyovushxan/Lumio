@@ -78,14 +78,12 @@ export default function Editor() {
       setMessages((prev) => prev.filter((m) => !m.thinking))
       const raw = String(e?.message || e)
       let msg: string
-      if (raw.includes('API_KEY_INVALID') || raw.includes('API key not valid')) {
-        msg = lang === 'uz' ? "Gemini API kalit noto'g'ri. .env.local'da VITE_GEMINI_API_KEY ni tekshiring." : 'Invalid API key.'
-      } else if (raw.includes('SERVICE_DISABLED') || raw.includes('has not been used') || raw.includes('PERMISSION_DENIED')) {
-        msg = lang === 'uz'
-          ? "Generative Language API yoqilmagan. https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com?project=lumio-28eac ga o'tib ENABLE bosing."
-          : 'Enable Generative Language API in Google Cloud Console.'
-      } else if (raw.includes('RESOURCE_EXHAUSTED') || raw.includes('429')) {
-        msg = lang === 'uz' ? 'Kvota tugadi. Bir oz kutib qayta urinib ko\'ring.' : 'Quota exhausted.'
+      if (raw.includes('VITE_GROQ_API_KEY') || raw.includes('Invalid API Key') || raw.includes('invalid_api_key')) {
+        msg = lang === 'uz' ? "Groq API kalit noto'g'ri. .env.local'da VITE_GROQ_API_KEY ni tekshiring." : 'Invalid Groq API key.'
+      } else if (raw.includes('rate_limit') || raw.includes('429')) {
+        msg = lang === 'uz' ? "Kvota tugadi. Bir oz kutib qayta urinib ko'ring." : 'Rate limit reached.'
+      } else if (raw.includes('NETWORK_BLOCKED') || raw.includes('Failed to fetch')) {
+        msg = lang === 'uz' ? 'Tarmoq xato. Internet aloqasini tekshiring.' : 'Network error.'
       } else {
         msg = (lang === 'uz' ? 'AI xatosi: ' : 'AI error: ') + raw.slice(0, 200)
       }
